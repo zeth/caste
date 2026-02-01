@@ -19,6 +19,7 @@ target_compile_features(caste PUBLIC cxx_std_20)
 option(CASTE_BUILD_CLI "Build caste command-line binary" ON)
 if (CASTE_BUILD_CLI)
     add_executable(caste_cli src/caste_cli.cpp)
+    set_target_properties(caste_cli PROPERTIES OUTPUT_NAME caste)
     target_link_libraries(caste_cli PRIVATE caste)
 endif()
 
