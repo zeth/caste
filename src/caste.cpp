@@ -1,6 +1,8 @@
 #include "caste.hpp"
 
 static inline uint64_t GiB(uint64_t x) { return x * 1024ull * 1024ull * 1024ull; }
+static inline uint64_t MiB(uint64_t x) { return x * 1024ull * 1024ull; }
+static inline uint64_t ram_user_floor_bytes() { return GiB(8) - MiB(512); } // tolerate reserved memory
 
 static Caste min_caste(Caste a, Caste b) {
     return (static_cast<int>(a) < static_cast<int>(b)) ? a : b;
@@ -19,7 +21,7 @@ static Caste caste_from_vram(uint64_t vram_bytes) {
 
 // Clamp “how high you can go” by RAM, to avoid embarrassment.
 static Caste ram_cap(uint64_t ram_bytes) {
-    if (ram_bytes < GiB(8))  return Caste::Mini;
+    if (ram_bytes < ram_user_floor_bytes()) return Caste::Mini;
     if (ram_bytes < GiB(16)) return Caste::User;
     if (ram_bytes < GiB(24)) return Caste::User;        // 16–23GB: still usually “User”
     if (ram_bytes < GiB(32)) return Caste::Developer;   // 24–31GB
@@ -51,9 +53,9 @@ CasteResult classify_caste(const HwFacts& hw) {
     CasteResult out;
 
     // 0) Absolute floor
-    if (hw.ram_bytes < GiB(8)) {
+    if (hw.ram_bytes < ram_user_floor_bytes()) {
         out.caste = Caste::Mini;
-        out.reason = "RAM < 8GB";
+        out.reason = "RAM < ~7.5GB";
         return out;
     }
 
@@ -98,7 +100,7 @@ CasteResult classify_caste(const HwFacts& hw) {
 
     // 5) Ensure we don’t return Mini if RAM >= 8GB unless everything is truly weak
     // (You can remove this if you want harsher behavior)
-    if (hw.ram_bytes >= GiB(8)) {
+    if (hw.ram_bytes >= ram_user_floor_bytes()) {
         capped = max_caste(capped, Caste::User);
     }
 
