@@ -1,0 +1,36 @@
+.TH CASTE 1 "February 1, 2026" "caste 0.1.0" "User Commands"
+.SH NAME
+caste \- print a single-word hardware class
+.SH SYNOPSIS
+.B caste
+[\fB\-\-reason\fR]
+[\fB\-\-version\fR]
+[\fB\-h\fR|\fB\-\-help\fR]
+.SH DESCRIPTION
+The
+.B caste
+command prints a single-word hardware class inferred from the system:
+Mini, User, Developer, Workstation, or Rig.
+.SH OPTIONS
+.TP
+.B \-\-reason
+Include a short explanation after the class.
+.TP
+.B \-\-version
+Print the version and exit.
+.TP
+.B \-h, \-\-help
+Show a brief usage message.
+.SH EXAMPLES
+.TP
+.B caste
+Print the class only.
+.TP
+.B caste \-\-reason
+Print the class and a short explanation.
+.SH EXIT STATUS
+.TP
+.B 0
+Success.
+.SH SEE ALSO
+.BR uname (1)
