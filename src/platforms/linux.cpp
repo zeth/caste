@@ -13,39 +13,23 @@
 //    * Intel iGPU: shared memory -> don't fake VRAM.
 // - Intel Arc detection: heuristic on device-id range (good enough for tiering).
 
+#include "caste.hpp"
+
+#if defined(__linux__)
+
+#include <algorithm>
 #include <cstdint>
-#include <string>
-#include <vector>
+#include <dlfcn.h>
+#include <filesystem>
+#include <fstream>
 #include <optional>
 #include <set>
-#include <utility>
-#include <fstream>
 #include <sstream>
-#include <filesystem>
-#include <thread>
-#include <algorithm>
+#include <string>
 #include <sys/sysinfo.h>
-#include <dlfcn.h>
-
-enum class GpuKind {
-    None,
-    Integrated,  // shared memory iGPU
-    Unified,     // not really used on Linux; keep for symmetry
-    Discrete
-};
-
-struct HwFacts {
-    uint64_t ram_bytes = 0;
-    int physical_cores = 0;
-    int logical_threads = 0;
-
-    GpuKind gpu_kind = GpuKind::None;
-    uint64_t vram_bytes = 0;
-    bool has_discrete_gpu = false;
-
-    bool is_apple_silicon = false; // always false on Linux
-    bool is_intel_arc = false;     // best-effort
-};
+#include <thread>
+#include <utility>
+#include <vector>
 
 namespace {
 
@@ -376,7 +360,7 @@ static GpuCandidate pick_best_gpu(std::vector<GpuCandidate> gpus) {
 
 } // namespace
 
-HwFacts fill_hw_facts_linux() {
+HwFacts fill_hw_facts_platform() {
     HwFacts hw{};
 
     // RAM
@@ -447,7 +431,7 @@ static const char* gpu_kind_name(GpuKind k) {
     return "Unknown";
 }
 int main() {
-    HwFacts hw = fill_hw_facts_linux();
+    HwFacts hw = fill_hw_facts_platform();
     std::cout << "RAM: " << (hw.ram_bytes / (1024ull*1024ull*1024ull)) << " GiB\n";
     std::cout << "CPU: physical_cores=" << hw.physical_cores
               << " logical_threads=" << hw.logical_threads << "\n";
@@ -458,4 +442,6 @@ int main() {
               << "\n";
     return 0;
 }
+#endif
+
 #endif

@@ -1,42 +1,6 @@
-#include <cstdint>
-#include <string>
+#include "caste.hpp"
+
 #include <algorithm>
-
-enum class Caste {
-    Mini,
-    User,
-    Developer,
-    Workstation,
-    Rig
-};
-
-enum class GpuKind {
-    None,
-    Integrated,   // Intel UHD/Iris Xe, AMD iGPU, etc. (shared memory)
-    Unified,      // Apple Silicon style unified memory (shared, but fast)
-    Discrete      // NVIDIA/AMD dGPU with dedicated VRAM
-};
-
-struct HwFacts {
-    // Memory
-    uint64_t ram_bytes = 0;
-
-    // CPU (use whatever you can get; physical if known, else set to 0)
-    int physical_cores = 0;
-    int logical_threads = 0;
-
-    // GPU summary (your detection layer fills this)
-    GpuKind gpu_kind = GpuKind::None;
-    uint64_t vram_bytes = 0;          // only meaningful if gpu_kind == Discrete
-    bool has_discrete_gpu = false;    // convenience (often same as gpu_kind==Discrete)
-    bool is_apple_silicon = false;    // macOS arm64
-    bool is_intel_arc = false;        // Arc dGPU OR Arc-class iGPU (your detection decides)
-};
-
-struct CasteResult {
-    Caste caste = Caste::Mini;
-    std::string reason; // for logs/UI
-};
 
 static inline uint64_t GiB(uint64_t x) { return x * 1024ull * 1024ull * 1024ull; }
 
@@ -86,7 +50,7 @@ static Caste cpu_cap(int physical_cores, int logical_threads) {
 }
 
 CasteResult classify_caste(const HwFacts& hw) {
-    TierResult out;
+    CasteResult out;
 
     // 0) Absolute floor
     if (hw.ram_bytes < GiB(8)) {
@@ -150,7 +114,7 @@ CasteResult classify_caste(const HwFacts& hw) {
 }
 
 // Optional helper for display
-static const char* caste_name(Caste t) {
+const char* caste_name(Caste t) {
     switch (t) {
         case Caste::Mini: return "Mini";
         case Caste::User: return "User";
@@ -159,4 +123,27 @@ static const char* caste_name(Caste t) {
         case Caste::Rig: return "Rig";
     }
     return "Unknown";
+}
+
+#if defined(__linux__)
+HwFacts fill_hw_facts_platform();
+#elif defined(__APPLE__) && defined(__MACH__)
+HwFacts fill_hw_facts_platform();
+#elif defined(_WIN32)
+HwFacts fill_hw_facts_platform();
+#elif defined(__FreeBSD__) || defined(__NetBSD__) || defined(__OpenBSD__)
+HwFacts fill_hw_facts_platform();
+#else
+static HwFacts fill_hw_facts_platform() {
+    return HwFacts{};
+}
+#endif
+
+CasteResult detect_caste() {
+    HwFacts hw = fill_hw_facts_platform();
+    return classify_caste(hw);
+}
+
+std::string detect_caste_word() {
+    return std::string(caste_name(detect_caste().caste));
 }
