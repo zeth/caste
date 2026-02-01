@@ -74,7 +74,6 @@ TEST_CASE("Caste names are stable") {
     REQUIRE(std::string(caste_name(Caste::Rig)) == "Rig");
 }
 
-#if defined(__FreeBSD__)
 namespace {
 bool is_valid_caste(Caste c) {
     switch (c) {
@@ -89,7 +88,20 @@ bool is_valid_caste(Caste c) {
 }
 } // namespace
 
+#if defined(__FreeBSD__)
+
 TEST_CASE("FreeBSD hw facts are populated") {
+    HwFacts hw = detect_hw_facts();
+    REQUIRE(hw.ram_bytes > 0);
+    REQUIRE(hw.logical_threads > 0);
+
+    CasteResult result = classify_caste(hw);
+    REQUIRE(is_valid_caste(result.caste));
+}
+#endif
+
+#if defined(__APPLE__) && defined(__MACH__)
+TEST_CASE("macOS hw facts are populated") {
     HwFacts hw = detect_hw_facts();
     REQUIRE(hw.ram_bytes > 0);
     REQUIRE(hw.logical_threads > 0);
