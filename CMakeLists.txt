@@ -15,6 +15,9 @@ add_library(caste
 if (WIN32)
     target_link_libraries(caste PRIVATE dxgi)
 endif()
+if (APPLE)
+    target_link_libraries(caste PRIVATE "-framework CoreFoundation" "-framework IOKit")
+endif()
 
 target_include_directories(caste
     PUBLIC

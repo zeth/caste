@@ -100,7 +100,7 @@ static std::vector<GpuCandidate> enumerate_gpus_iokit() {
     if (!match) return out;
 
     io_iterator_t iter = 0;
-    if (IOServiceGetMatchingServices(kIOMasterPortDefault, match, &iter) != KERN_SUCCESS) {
+    if (IOServiceGetMatchingServices(kIOMainPortDefault, match, &iter) != KERN_SUCCESS) {
         return out;
     }
 
