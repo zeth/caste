@@ -13,6 +13,10 @@ add_library(caste
     src/platforms/win.cpp
 )
 
+if (WIN32)
+    target_link_libraries(caste PRIVATE dxgi)
+endif()
+
 target_include_directories(caste
     PUBLIC
         $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/src>

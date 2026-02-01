@@ -110,3 +110,14 @@ TEST_CASE("macOS hw facts are populated") {
     REQUIRE(is_valid_caste(result.caste));
 }
 #endif
+
+#if defined(_WIN32)
+TEST_CASE("Windows hw facts are populated") {
+    HwFacts hw = detect_hw_facts();
+    REQUIRE(hw.ram_bytes > 0);
+    REQUIRE(hw.logical_threads > 0);
+
+    CasteResult result = classify_caste(hw);
+    REQUIRE(is_valid_caste(result.caste));
+}
+#endif
