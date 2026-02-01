@@ -75,16 +75,26 @@ TEST_CASE("Caste names are stable") {
 }
 
 #if defined(__FreeBSD__)
+namespace {
+bool is_valid_caste(Caste c) {
+    switch (c) {
+        case Caste::Mini:
+        case Caste::User:
+        case Caste::Developer:
+        case Caste::Workstation:
+        case Caste::Rig:
+            return true;
+    }
+    return false;
+}
+} // namespace
+
 TEST_CASE("FreeBSD hw facts are populated") {
     HwFacts hw = detect_hw_facts();
     REQUIRE(hw.ram_bytes > 0);
     REQUIRE(hw.logical_threads > 0);
 
     CasteResult result = classify_caste(hw);
-    REQUIRE(result.caste == Caste::Mini ||
-            result.caste == Caste::User ||
-            result.caste == Caste::Developer ||
-            result.caste == Caste::Workstation ||
-            result.caste == Caste::Rig);
+    REQUIRE(is_valid_caste(result.caste));
 }
 #endif
