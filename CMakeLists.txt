@@ -3,7 +3,6 @@ cmake_minimum_required(VERSION 3.20)
 project(caste VERSION 0.1.0 LANGUAGES CXX)
 
 option(CASTE_BUILD_TESTS "Build caste tests" ON)
-option(CASTE_USE_FETCHCONTENT_FALLBACK "Fallback to FetchContent for Catch2" ON)
 
 add_library(caste
     src/caste.cpp
@@ -34,7 +33,7 @@ endif()
 
 if (CASTE_BUILD_TESTS)
     find_package(Catch2 3 QUIET)
-    if (NOT Catch2_FOUND AND CASTE_USE_FETCHCONTENT_FALLBACK)
+    if (NOT Catch2_FOUND)
         include(FetchContent)
         FetchContent_Declare(
             Catch2
