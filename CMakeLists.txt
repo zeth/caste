@@ -16,6 +16,12 @@ add_library(caste
 target_include_directories(caste PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/src)
 target_compile_features(caste PUBLIC cxx_std_20)
 
+option(CASTE_BUILD_CLI "Build caste command-line binary" ON)
+if (CASTE_BUILD_CLI)
+    add_executable(caste_cli src/caste_cli.cpp)
+    target_link_libraries(caste_cli PRIVATE caste)
+endif()
+
 if (CASTE_BUILD_TESTS)
     find_package(Catch2 3 QUIET)
     if (NOT Catch2_FOUND AND CASTE_USE_FETCHCONTENT_FALLBACK)
