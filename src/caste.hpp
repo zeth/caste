@@ -43,5 +43,6 @@ CasteResult classify_caste(const HwFacts& hw);
 const char* caste_name(Caste t);
 
 // Simple public API: call this and get a single word bucket name.
+HwFacts detect_hw_facts();
 CasteResult detect_caste();
 std::string detect_caste_word();

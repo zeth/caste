@@ -73,3 +73,18 @@ TEST_CASE("Caste names are stable") {
     REQUIRE(std::string(caste_name(Caste::Workstation)) == "Workstation");
     REQUIRE(std::string(caste_name(Caste::Rig)) == "Rig");
 }
+
+#if defined(__FreeBSD__)
+TEST_CASE("FreeBSD hw facts are populated") {
+    HwFacts hw = detect_hw_facts();
+    REQUIRE(hw.ram_bytes > 0);
+    REQUIRE(hw.logical_threads > 0);
+
+    CasteResult result = classify_caste(hw);
+    REQUIRE(result.caste == Caste::Mini ||
+            result.caste == Caste::User ||
+            result.caste == Caste::Developer ||
+            result.caste == Caste::Workstation ||
+            result.caste == Caste::Rig);
+}
+#endif

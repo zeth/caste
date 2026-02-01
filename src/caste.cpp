@@ -145,3 +145,7 @@ CasteResult detect_caste() {
 std::string detect_caste_word() {
     return std::string(caste_name(detect_caste().caste));
 }
+
+HwFacts detect_hw_facts() {
+    return fill_hw_facts_platform();
+}
