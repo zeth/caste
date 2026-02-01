@@ -1,7 +1,5 @@
 #include "caste.hpp"
 
-#include <algorithm>
-
 static inline uint64_t GiB(uint64_t x) { return x * 1024ull * 1024ull * 1024ull; }
 
 static Caste min_caste(Caste a, Caste b) {
