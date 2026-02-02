@@ -3,6 +3,7 @@ cmake_minimum_required(VERSION 3.20)
 project(caste VERSION 0.1.0 LANGUAGES CXX)
 
 option(CASTE_BUILD_TESTS "Build caste tests" ON)
+option(CASTE_BUILD_PYTHON "Build Python extension module" OFF)
 
 add_library(caste
     src/caste.cpp
@@ -11,6 +12,7 @@ add_library(caste
     src/platforms/bsd.cpp
     src/platforms/win.cpp
 )
+set_target_properties(caste PROPERTIES POSITION_INDEPENDENT_CODE ON)
 
 if (WIN32)
     target_link_libraries(caste PRIVATE dxgi)
@@ -32,6 +34,10 @@ if (CASTE_BUILD_CLI)
     add_executable(caste_cli src/caste_cli.cpp)
     set_target_properties(caste_cli PROPERTIES OUTPUT_NAME caste)
     target_link_libraries(caste_cli PRIVATE caste)
+endif()
+
+if (CASTE_BUILD_PYTHON)
+    add_subdirectory(python)
 endif()
 
 if (CASTE_BUILD_TESTS)

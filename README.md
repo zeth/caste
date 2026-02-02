@@ -91,6 +91,26 @@ cmake --build build
 cmake --install build
 ```
 
+## Python bindings (pybind11)
+
+Bindings live under `python/` and the Python package is `caste/`.
+
+### Build a wheel locally
+
+```bash
+cd python
+python -m pip install build
+python -m build
+```
+
+### Develop/test locally (editable)
+
+```bash
+cd python
+python -m pip install -e .
+python -c "import caste; print(caste.detect_caste_word())"
+```
+
 ## Why?
 
 Modern applications increasingly adapt their behaviour based on available hardware.
