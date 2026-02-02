@@ -9,7 +9,7 @@ build-backend = "scikit_build_core.build"
 name = "caste"
 version = "0.1.0"
 description = "Opinionated hardware classification library."
-readme = "../README.md"
+readme = "README.md"
 requires-python = ">=3.8"
 
 [project.optional-dependencies]
@@ -17,8 +17,8 @@ test = ["pytest"]
 
 [tool.scikit-build]
 cmake.version = ">=3.20"
-cmake.source-dir = ".."
+cmake.source-dir = "."
 build-dir = "build"
 cmake.build-type = "Release"
-cmake.define = { CASTE_BUILD_PYTHON = "ON", CASTE_BUILD_TESTS = "OFF", CASTE_BUILD_CLI = "OFF" }
+cmake.define = { CASTE_BUILD_PYTHON = "OFF", CASTE_BUILD_TESTS = "OFF", CASTE_BUILD_CLI = "OFF" }
 wheel.packages = ["caste"]
