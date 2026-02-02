@@ -38,6 +38,13 @@ python -m pip install -e .
 python -c "import caste; print(caste.detect_caste_word())"
 ```
 
+## Build a wheel locally
+
+```bash
+python -m pip install build
+python -m build
+```
+
 ## Run Python tests
 
 ```bash
