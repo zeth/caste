@@ -1,8 +1,5 @@
 [build-system]
-requires = [
-    "scikit-build-core>=0.10.0",
-    "pybind11>=2.11.0",
-]
+requires = ["scikit-build-core>=0.10.0", "pybind11>=2.11.0"]
 build-backend = "scikit_build_core.build"
 
 [project]
@@ -11,6 +8,13 @@ version = "0.1.0"
 description = "Opinionated hardware classification library."
 readme = "README.md"
 requires-python = ">=3.8"
+license = "MIT"
+authors = [{ name = "Zeth", email = "holdercardteam+caste@gmail.com" }]
+keywords = ["hardware", "classification", "system-info", "gpu", "cpu"]
+
+[project.urls]
+Repository = "https://github.com/zeth/caste"
+Issues = "https://github.com/zeth/caste/issues"
 
 [project.optional-dependencies]
 test = ["pytest"]
