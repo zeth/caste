@@ -9,7 +9,9 @@ add_library(caste
     src/caste.cpp
     src/platforms/linux.cpp
     src/platforms/mac.cpp
-    src/platforms/bsd.cpp
+    src/platforms/bsd/freebsd.cpp
+    src/platforms/bsd/netbsd.cpp
+    src/platforms/bsd/openbsd.cpp
     src/platforms/win.cpp
 )
 set_target_properties(caste PROPERTIES POSITION_INDEPENDENT_CODE ON)
