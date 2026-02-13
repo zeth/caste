@@ -1,9 +1,9 @@
 #include "caste.hpp"
+#include "common.hpp"
 
 #if defined(__FreeBSD__)
 
 #include <algorithm>
-#include <cctype>
 #include <cstdio>
 #include <cstring>
 #include <string>
@@ -27,18 +27,6 @@ static bool sysctl_int(const char* name, int& out) {
     if (sysctlbyname(name, &v, &len, nullptr, 0) != 0) return false;
     out = v;
     return true;
-}
-
-static std::string trim(std::string s) {
-    auto notspace = [](unsigned char c){ return c != ' ' && c != '\t' && c != '\n' && c != '\r'; };
-    while (!s.empty() && !notspace((unsigned char)s.front())) s.erase(s.begin());
-    while (!s.empty() && !notspace((unsigned char)s.back())) s.pop_back();
-    return s;
-}
-
-static std::string to_lower(std::string s) {
-    for (char& c : s) c = (char)std::tolower((unsigned char)c);
-    return s;
 }
 
 struct GpuCandidate {
@@ -73,7 +61,7 @@ static std::vector<GpuCandidate> parse_pciconf_gpus() {
     };
 
     while (fgets(buf, sizeof(buf), f)) {
-        std::string line = trim(buf);
+        std::string line = bsd_common::trim(buf);
         if (line.empty()) {
             flush();
             continue;
@@ -83,8 +71,8 @@ static std::vector<GpuCandidate> parse_pciconf_gpus() {
         auto pos = line.find('=');
         if (pos == std::string::npos) continue;
 
-        std::string key = trim(line.substr(0, pos));
-        std::string val = trim(line.substr(pos + 1));
+        std::string key = bsd_common::trim(line.substr(0, pos));
+        std::string val = bsd_common::trim(line.substr(pos + 1));
 
         if (key == "class") {
             // e.g. 0x030000, 0x030200, 0x038000
@@ -157,8 +145,8 @@ HwFacts fill_hw_facts_platform() {
     }
 
     for (auto& g : gpus) {
-        std::string vendor = to_lower(g.vendor);
-        std::string device = to_lower(g.device);
+        std::string vendor = bsd_common::to_lower(g.vendor);
+        std::string device = bsd_common::to_lower(g.device);
 
         if (vendor.find("nvidia") != std::string::npos) {
             g.is_discrete_hint = true;

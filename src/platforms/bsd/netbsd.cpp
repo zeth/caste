@@ -1,9 +1,9 @@
 #include "caste.hpp"
+#include "common.hpp"
 
 #if defined(__NetBSD__)
 
 #include <algorithm>
-#include <cctype>
 #include <cstdio>
 #include <string>
 #include <vector>
@@ -36,20 +36,9 @@ static bool sysctl_int(const char* name, int& out) {
     return true;
 }
 
-static std::string trim(std::string s) {
-    auto notspace = [](unsigned char c){ return c != ' ' && c != '\t' && c != '\n' && c != '\r'; };
-    while (!s.empty() && !notspace((unsigned char)s.front())) s.erase(s.begin());
-    while (!s.empty() && !notspace((unsigned char)s.back())) s.pop_back();
-    return s;
-}
-
-static std::string to_lower(std::string s) {
-    for (char& c : s) c = (char)std::tolower((unsigned char)c);
-    return s;
-}
-
 struct GpuCandidate {
     bool is_discrete_hint = false;
+    bool is_virtual_hint = false;
     bool is_intel_arc_hint = false;
     std::string name;
 };
@@ -61,7 +50,7 @@ static std::vector<GpuCandidate> parse_pcictl_gpus() {
 
     char buf[512];
     while (fgets(buf, sizeof(buf), f)) {
-        std::string line = trim(buf);
+        std::string line = bsd_common::trim(buf);
         if (line.empty()) continue;
 
         // e.g. "000:02:0: Red Hat QXL Video (VGA display, revision 0x05)"
@@ -73,11 +62,11 @@ static std::vector<GpuCandidate> parse_pcictl_gpus() {
         auto rparen = desc.rfind(')');
         if (lparen == std::string::npos || rparen == std::string::npos || lparen >= rparen) continue;
 
-        std::string class_desc = to_lower(trim(desc.substr(lparen + 1, rparen - lparen - 1)));
+        std::string class_desc = bsd_common::to_lower(bsd_common::trim(desc.substr(lparen + 1, rparen - lparen - 1)));
         if (class_desc.find("display") == std::string::npos) continue;
 
         GpuCandidate g{};
-        g.name = to_lower(trim(desc.substr(0, lparen)));
+        g.name = bsd_common::to_lower(bsd_common::trim(desc.substr(0, lparen)));
 
         if (g.name.find("nvidia") != std::string::npos ||
             g.name.find("amd") != std::string::npos ||
@@ -89,6 +78,10 @@ static std::vector<GpuCandidate> parse_pcictl_gpus() {
 
         if (g.name.find("arc") != std::string::npos) {
             g.is_intel_arc_hint = true;
+        }
+
+        if (bsd_common::contains_any(g.name, {"qxl", "virtio", "vmware", "virtualbox", "bochs", "cirrus"})) {
+            g.is_virtual_hint = true;
         }
 
         out.push_back(g);
@@ -103,6 +96,7 @@ static GpuCandidate pick_best_gpu(const std::vector<GpuCandidate>& gpus) {
         int s = 0;
         if (g.is_discrete_hint) s += 1000;
         if (g.is_intel_arc_hint) s += 100;
+        if (g.is_virtual_hint) s -= 500;
         return s;
     };
     if (gpus.empty()) return {};
@@ -141,6 +135,9 @@ HwFacts fill_hw_facts_platform() {
     if (best.is_discrete_hint) {
         hw.gpu_kind = GpuKind::Discrete;
         hw.has_discrete_gpu = true;
+    } else if (best.is_virtual_hint) {
+        hw.gpu_kind = GpuKind::None;
+        hw.has_discrete_gpu = false;
     } else {
         hw.gpu_kind = GpuKind::Integrated;
         hw.has_discrete_gpu = false;
