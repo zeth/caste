@@ -4,32 +4,48 @@
 #if defined(__OpenBSD__)
 
 #include <algorithm>
+#include <cerrno>
 #include <cstdio>
+#include <cstdlib>
+#include <limits>
 #include <string>
 #include <vector>
-#include <sys/types.h>
-#include <sys/sysctl.h>
 
 namespace {
 
 static bool sysctl_u64(const char* name, uint64_t& out) {
-    (void)name;
-    int mib[2] = {CTL_HW, HW_PHYSMEM};
-    int64_t v = 0;
-    size_t len = sizeof(v);
-    if (sysctl(mib, 2, &v, &len, nullptr, 0) != 0) return false;
-    if (v < 0) return false;
+    std::string cmd = "sysctl -n ";
+    cmd += name;
+    cmd += " 2>/dev/null";
+
+    FILE* f = popen(cmd.c_str(), "r");
+    if (!f) return false;
+
+    char buf[128];
+    if (!fgets(buf, sizeof(buf), f)) {
+        pclose(f);
+        return false;
+    }
+    pclose(f);
+
+    std::string s = bsd_common::trim(buf);
+    if (s.empty()) return false;
+
+    errno = 0;
+    char* end = nullptr;
+    unsigned long long v = std::strtoull(s.c_str(), &end, 10);
+    if (errno != 0 || end == s.c_str()) return false;
     out = static_cast<uint64_t>(v);
     return true;
 }
 
 static bool sysctl_int(const char* name, int& out) {
-    (void)name;
-    int mib[2] = {CTL_HW, HW_NCPU};
-    int v = 0;
-    size_t len = sizeof(v);
-    if (sysctl(mib, 2, &v, &len, nullptr, 0) != 0) return false;
-    out = v;
+    uint64_t v = 0;
+    if (!sysctl_u64(name, v)) return false;
+    if (v > static_cast<uint64_t>(std::numeric_limits<int>::max())) return false;
+    int iv = static_cast<int>(v);
+    if (iv <= 0) return false;
+    out = iv;
     return true;
 }
 
