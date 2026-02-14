@@ -2,6 +2,8 @@
 
 #include <algorithm>
 #include <cctype>
+#include <cstdio>
+#include <cstdlib>
 
 #if defined(__FreeBSD__) || defined(__NetBSD__) || defined(__DragonFly__)
 #include <sys/types.h>
@@ -9,6 +11,14 @@
 #endif
 
 namespace bsd_common {
+
+static bool parse_hex_u32(const std::string& s, uint32_t& out) {
+    char* end = nullptr;
+    unsigned long v = std::strtoul(s.c_str(), &end, 16);
+    if (!end || end == s.c_str()) return false;
+    out = (uint32_t)v;
+    return true;
+}
 
 std::string trim(std::string s) {
     auto notspace = [](unsigned char c){ return c != ' ' && c != '\t' && c != '\n' && c != '\r'; };
@@ -27,6 +37,75 @@ bool contains_any(const std::string& haystack, std::initializer_list<const char*
         if (haystack.find(needle) != std::string::npos) return true;
     }
     return false;
+}
+
+std::vector<PciconfGpuRecord> parse_pciconf_gpu_records(const char* cmd, PciconfFormat format) {
+    std::vector<PciconfGpuRecord> out;
+    FILE* f = popen(cmd, "r");
+    if (!f) return out;
+
+    char buf[512];
+    PciconfGpuRecord cur{};
+    bool in_record = false;
+
+    auto flush = [&](){
+        if (in_record) out.push_back(cur);
+        cur = PciconfGpuRecord{};
+        in_record = false;
+    };
+
+    while (fgets(buf, sizeof(buf), f)) {
+        std::string raw = buf;
+        std::string line = trim(raw);
+        if (line.empty()) {
+            if (format == PciconfFormat::FreeBsdStyle) {
+                flush();
+            }
+            continue;
+        }
+
+        if (format == PciconfFormat::DragonFlyStyle) {
+            bool is_header = !raw.empty() && raw[0] != ' ' && raw[0] != '\t';
+            if (is_header) {
+                flush();
+                in_record = true;
+                auto cls_pos = line.find("class=0x");
+                if (cls_pos != std::string::npos) {
+                    std::string cls_hex = line.substr(cls_pos + 8);
+                    auto sp = cls_hex.find(' ');
+                    if (sp != std::string::npos) cls_hex = cls_hex.substr(0, sp);
+                    uint32_t cls = 0;
+                    if (parse_hex_u32(cls_hex, cls) && (cls & 0xFF0000u) == 0x030000u) {
+                        cur.is_gpu = true;
+                    }
+                }
+                continue;
+            }
+        } else {
+            in_record = true;
+        }
+
+        auto pos = line.find('=');
+        if (pos == std::string::npos) continue;
+        std::string key = trim(line.substr(0, pos));
+        std::string val = trim(line.substr(pos + 1));
+
+        if (format == PciconfFormat::FreeBsdStyle && key == "class") {
+            if (val.rfind("0x", 0) == 0) val = val.substr(2);
+            uint32_t cls = 0;
+            if (parse_hex_u32(val, cls) && (cls & 0xFF0000u) == 0x030000u) {
+                cur.is_gpu = true;
+            }
+        } else if (key == "vendor") {
+            cur.vendor = val;
+        } else if (key == "device") {
+            cur.device = val;
+        }
+    }
+
+    flush();
+    pclose(f);
+    return out;
 }
 
 void apply_name_hints(GpuCandidate& gpu, const std::string& name_lower) {

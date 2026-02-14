@@ -15,9 +15,21 @@ struct GpuCandidate {
     bool is_intel_arc_hint = false;
 };
 
+enum class PciconfFormat {
+    FreeBsdStyle,
+    DragonFlyStyle
+};
+
+struct PciconfGpuRecord {
+    bool is_gpu = false;
+    std::string vendor;
+    std::string device;
+};
+
 std::string trim(std::string s);
 std::string to_lower(std::string s);
 bool contains_any(const std::string& haystack, std::initializer_list<const char*> needles);
+std::vector<PciconfGpuRecord> parse_pciconf_gpu_records(const char* cmd, PciconfFormat format);
 void apply_name_hints(GpuCandidate& gpu, const std::string& name_lower);
 void apply_vendor_device_hints(GpuCandidate& gpu,
                                const std::string& vendor_lower,
