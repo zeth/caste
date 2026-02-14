@@ -32,6 +32,7 @@ static bool sysctl_int(const char* name, int& out) {
 struct GpuCandidate {
     bool is_gpu = false;
     bool is_discrete_hint = false;
+    bool is_virtual_hint = false;
     bool is_intel_arc_hint = false;
     std::string vendor;
     std::string device;
@@ -52,35 +53,43 @@ static std::vector<GpuCandidate> parse_pciconf_gpus() {
 
     char buf[512];
     GpuCandidate cur{};
-    bool has_any = false;
+    bool in_record = false;
 
     auto flush = [&](){
-        if (has_any) out.push_back(cur);
+        if (in_record) out.push_back(cur);
         cur = GpuCandidate{};
-        has_any = false;
+        in_record = false;
     };
 
     while (fgets(buf, sizeof(buf), f)) {
-        std::string line = bsd_common::trim(buf);
-        if (line.empty()) {
+        std::string raw = buf;
+        std::string line = bsd_common::trim(raw);
+        if (line.empty()) continue;
+
+        // DragonFly record header is non-indented:
+        // vgapci0@pci0:0:2:0:  class=0x030000 ...
+        bool is_header = !raw.empty() && raw[0] != ' ' && raw[0] != '\t';
+        if (is_header) {
             flush();
+            in_record = true;
+            auto cls_pos = line.find("class=0x");
+            if (cls_pos != std::string::npos) {
+                std::string cls_hex = line.substr(cls_pos + 8);
+                auto sp = cls_hex.find(' ');
+                if (sp != std::string::npos) cls_hex = cls_hex.substr(0, sp);
+                uint32_t cls = 0;
+                if (parse_hex_u32(cls_hex, cls)) {
+                    if ((cls & 0xFF0000u) == 0x030000u) cur.is_gpu = true;
+                }
+            }
             continue;
         }
-        has_any = true;
 
         auto pos = line.find('=');
         if (pos == std::string::npos) continue;
-
         std::string key = bsd_common::trim(line.substr(0, pos));
         std::string val = bsd_common::trim(line.substr(pos + 1));
-
-        if (key == "class") {
-            if (val.rfind("0x", 0) == 0) val = val.substr(2);
-            uint32_t cls = 0;
-            if (parse_hex_u32(val, cls)) {
-                if ((cls & 0xFF0000u) == 0x030000u) cur.is_gpu = true;
-            }
-        } else if (key == "vendor") {
+        if (key == "vendor") {
             cur.vendor = val;
         } else if (key == "device") {
             cur.device = val;
@@ -101,6 +110,7 @@ static GpuCandidate pick_best_gpu(const std::vector<GpuCandidate>& gpus) {
         int s = 0;
         if (g.is_discrete_hint) s += 1000;
         if (g.is_intel_arc_hint) s += 100;
+        if (g.is_virtual_hint) s -= 500;
         return s;
     };
     if (gpus.empty()) return {};
@@ -142,6 +152,10 @@ HwFacts fill_hw_facts_platform() {
         if (device.find("arc") != std::string::npos) {
             g.is_intel_arc_hint = true;
         }
+        if (bsd_common::contains_any(vendor, {"red hat", "vmware", "virtualbox", "bochs", "cirrus"}) ||
+            bsd_common::contains_any(device, {"qxl", "virtio", "vmware", "virtualbox", "bochs", "cirrus"})) {
+            g.is_virtual_hint = true;
+        }
     }
 
     GpuCandidate best = pick_best_gpu(gpus);
@@ -150,6 +164,9 @@ HwFacts fill_hw_facts_platform() {
     if (best.is_discrete_hint) {
         hw.gpu_kind = GpuKind::Discrete;
         hw.has_discrete_gpu = true;
+    } else if (best.is_virtual_hint) {
+        hw.gpu_kind = GpuKind::None;
+        hw.has_discrete_gpu = false;
     } else {
         hw.gpu_kind = GpuKind::Integrated;
         hw.has_discrete_gpu = false;
