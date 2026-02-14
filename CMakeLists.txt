@@ -10,6 +10,7 @@ add_library(caste
     src/platforms/linux.cpp
     src/platforms/mac.cpp
     src/platforms/bsd/common.cpp
+    src/platforms/bsd/dragonfly.cpp
     src/platforms/bsd/freebsd.cpp
     src/platforms/bsd/netbsd.cpp
     src/platforms/bsd/openbsd.cpp

@@ -135,7 +135,7 @@ HwFacts fill_hw_facts_platform();
 HwFacts fill_hw_facts_platform();
 #elif defined(_WIN32)
 HwFacts fill_hw_facts_platform();
-#elif defined(__FreeBSD__) || defined(__NetBSD__) || defined(__OpenBSD__)
+#elif defined(__FreeBSD__) || defined(__NetBSD__) || defined(__OpenBSD__) || defined(__DragonFly__)
 HwFacts fill_hw_facts_platform();
 #else
 static HwFacts fill_hw_facts_platform() {
