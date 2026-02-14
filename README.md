@@ -37,6 +37,12 @@ If you want to know why that machine was placed in that caste, use the --reason 
 caste --reason
 ```
 
+If you want to inspect the detected hardware facts directly:
+
+```bash
+caste --hwfacts
+```
+
 ## C++ Library Usage
 
 ### Header + API

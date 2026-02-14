@@ -4,6 +4,7 @@ caste \- print a single-word hardware class
 .SH SYNOPSIS
 .B caste
 [\fB\-\-reason\fR]
+[\fB\-\-hwfacts\fR]
 [\fB\-\-version\fR]
 [\fB\-h\fR|\fB\-\-help\fR]
 .SH DESCRIPTION
@@ -15,6 +16,9 @@ Mini, User, Developer, Workstation, or Rig.
 .TP
 .B \-\-reason
 Include a short explanation after the class.
+.TP
+.B \-\-hwfacts
+Print detected hardware facts before the class output.
 .TP
 .B \-\-version
 Print the version and exit.
@@ -28,6 +32,12 @@ Print the class only.
 .TP
 .B caste \-\-reason
 Print the class and a short explanation.
+.TP
+.B caste \-\-hwfacts
+Print detected hardware facts, then the class.
+.TP
+.B caste \-\-hwfacts \-\-reason
+Print detected hardware facts, then the class and short explanation.
 .SH EXIT STATUS
 .TP
 .B 0
