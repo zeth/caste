@@ -13,17 +13,22 @@
 namespace {
 
 static bool sysctl_u64(const char* name, uint64_t& out) {
-    uint64_t v = 0;
+    (void)name;
+    int mib[2] = {CTL_HW, HW_PHYSMEM};
+    int64_t v = 0;
     size_t len = sizeof(v);
-    if (sysctlbyname(name, &v, &len, nullptr, 0) != 0) return false;
-    out = v;
+    if (sysctl(mib, 2, &v, &len, nullptr, 0) != 0) return false;
+    if (v < 0) return false;
+    out = static_cast<uint64_t>(v);
     return true;
 }
 
 static bool sysctl_int(const char* name, int& out) {
+    (void)name;
+    int mib[2] = {CTL_HW, HW_NCPU};
     int v = 0;
     size_t len = sizeof(v);
-    if (sysctlbyname(name, &v, &len, nullptr, 0) != 0) return false;
+    if (sysctl(mib, 2, &v, &len, nullptr, 0) != 0) return false;
     out = v;
     return true;
 }
