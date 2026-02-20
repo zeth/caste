@@ -183,7 +183,12 @@ For unusually powerful systems:
 * Ubuntu 24.04
 * Windows 11
 * macOS 15 (Sequoia)
+* Alpine 3.23
 * FreeBSD 14.3
+* FreeBSD 15.0
+* NetBSD 10.1
+* OpenBSD 7.8
+* DragonFly 6.4.2
 
 ### Expected to work on
 
@@ -193,9 +198,6 @@ For unusually powerful systems:
 
 ### Planned or experimental support
 
-* OpenBSD
-* NetBSD
-* DragonFly BSD
 * Haiku
 * OpenIndiana
 * Older macOS versions (10–11)
