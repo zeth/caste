@@ -184,11 +184,12 @@ For unusually powerful systems:
 * Windows 11
 * macOS 15 (Sequoia)
 * Alpine 3.23
-* FreeBSD 14.3
-* FreeBSD 15.0
+* Fedora 43
+* FreeBSD 14.3 and 15.0
 * NetBSD 10.1
 * OpenBSD 7.8
 * DragonFly 6.4.2
+* Arch (rolling, 2026-02-20, GCC 15.2.1, Kernel 6.18.9-arch1-2)
 
 ### Expected to work on
 
