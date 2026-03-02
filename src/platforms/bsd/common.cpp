@@ -5,6 +5,8 @@
 #include <cstdio>
 #include <cstdlib>
 
+#if defined(__FreeBSD__) || defined(__NetBSD__) || defined(__OpenBSD__) || defined(__DragonFly__)
+
 #if defined(__FreeBSD__) || defined(__NetBSD__) || defined(__DragonFly__)
 #include <sys/types.h>
 #include <sys/sysctl.h>
@@ -202,3 +204,5 @@ bool sysctlbyname_int(const char* name, int& out) {
 #endif
 
 } // namespace bsd_common
+
+#endif
