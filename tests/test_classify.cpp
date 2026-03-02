@@ -1,6 +1,8 @@
 #include "caste.hpp"
 
 #include <cstdint>
+#include <string>
+#include <vector>
 
 #include <catch2/catch_test_macros.hpp>
 
@@ -8,6 +10,10 @@ namespace {
 
 constexpr uint64_t GiB(uint64_t x) {
     return x * 1024ull * 1024ull * 1024ull;
+}
+
+constexpr uint64_t MiB(uint64_t x) {
+    return x * 1024ull * 1024ull;
 }
 
 HwFacts base_hw() {
@@ -88,6 +94,60 @@ bool is_valid_caste(Caste c) {
 }
 } // namespace
 
+TEST_CASE("Classify boundaries around RAM floor and caps") {
+    struct Case {
+        const char* name;
+        uint64_t ram;
+        int physical_cores;
+        int logical_threads;
+        uint64_t vram;
+        Caste expected;
+    };
+
+    const std::vector<Case> cases = {
+        {"below floor => Mini", GiB(8) - MiB(513), 8, 16, GiB(24), Caste::Mini},
+        {"at floor => User floor", GiB(8) - MiB(512), 8, 16, GiB(24), Caste::User},
+        {"high VRAM but 16GB RAM cap => User", GiB(16), 8, 16, GiB(24), Caste::User},
+        {"high VRAM but 24GB RAM cap => Developer", GiB(24), 8, 16, GiB(24), Caste::Developer},
+        {"high VRAM but 32GB RAM cap => Workstation", GiB(32), 8, 16, GiB(24), Caste::Workstation},
+        {"high VRAM and 64GB RAM => Rig", GiB(64), 8, 16, GiB(24), Caste::Rig},
+    };
+
+    for (const auto& tc : cases) {
+        HwFacts hw = base_hw();
+        hw.ram_bytes = tc.ram;
+        hw.physical_cores = tc.physical_cores;
+        hw.logical_threads = tc.logical_threads;
+        hw.vram_bytes = tc.vram;
+        INFO(tc.name);
+        REQUIRE(classify_caste(hw).caste == tc.expected);
+    }
+}
+
+TEST_CASE("Intel Arc integrated bump behavior is gated by RAM") {
+    HwFacts hw{};
+    hw.gpu_kind = GpuKind::Integrated;
+    hw.has_discrete_gpu = false;
+    hw.is_intel_arc = true;
+    hw.physical_cores = 8;
+    hw.logical_threads = 16;
+
+    hw.ram_bytes = GiB(15);
+    REQUIRE(classify_caste(hw).caste == Caste::User);
+
+    hw.ram_bytes = GiB(16);
+    REQUIRE(classify_caste(hw).caste == Caste::User);
+
+    hw.ram_bytes = GiB(24);
+    REQUIRE(classify_caste(hw).caste == Caste::Developer);
+}
+
+TEST_CASE("detect_caste and detect_caste_word are consistent") {
+    CasteResult result = detect_caste();
+    REQUIRE(detect_caste_word() == std::string(caste_name(result.caste)));
+    REQUIRE(is_valid_caste(result.caste));
+}
+
 #if defined(__FreeBSD__)
 
 TEST_CASE("FreeBSD hw facts are populated") {
@@ -108,6 +168,11 @@ TEST_CASE("macOS hw facts are populated") {
 
     CasteResult result = classify_caste(hw);
     REQUIRE(is_valid_caste(result.caste));
+    REQUIRE(static_cast<int>(hw.gpu_kind) >= static_cast<int>(GpuKind::None));
+    REQUIRE(static_cast<int>(hw.gpu_kind) <= static_cast<int>(GpuKind::Discrete));
+    if (hw.is_apple_silicon) {
+        REQUIRE(hw.gpu_kind == GpuKind::Unified);
+    }
 }
 #endif
 
@@ -119,5 +184,11 @@ TEST_CASE("Windows hw facts are populated") {
 
     CasteResult result = classify_caste(hw);
     REQUIRE(is_valid_caste(result.caste));
+    REQUIRE(hw.physical_cores >= 0);
+    REQUIRE(static_cast<int>(hw.gpu_kind) >= static_cast<int>(GpuKind::None));
+    REQUIRE(static_cast<int>(hw.gpu_kind) <= static_cast<int>(GpuKind::Discrete));
+    if (hw.gpu_kind != GpuKind::Discrete) {
+        REQUIRE(hw.vram_bytes == 0);
+    }
 }
 #endif

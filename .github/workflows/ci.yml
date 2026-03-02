@@ -38,3 +38,52 @@ jobs:
           cd python
           python -m pip install -e ".[test]"
           python -m pytest -q
+
+  coverage:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Configure (coverage)
+        run: |
+          cmake -S . -B build-cov \
+            -DCMAKE_BUILD_TYPE=Debug \
+            -DCASTE_BUILD_TESTS=ON \
+            -DCASTE_BUILD_CLI=ON \
+            -DCMAKE_CXX_FLAGS="--coverage -O0 -g" \
+            -DCMAKE_EXE_LINKER_FLAGS="--coverage" \
+            -DCMAKE_SHARED_LINKER_FLAGS="--coverage"
+      - name: Build and test (coverage)
+        run: |
+          cmake --build build-cov --config Debug
+          ctest --test-dir build-cov -C Debug --output-on-failure
+      - name: Generate coverage report
+        run: |
+          python -m pip install -U pip gcovr
+          gcovr \
+            --root . \
+            build-cov \
+            --filter src \
+            --exclude-directories 'build-cov/_deps' \
+            --exclude 'tests/.*' \
+            --exclude 'python/.*' \
+            --txt-summary
+          gcovr \
+            --root . \
+            build-cov \
+            --filter src \
+            --exclude-directories 'build-cov/_deps' \
+            --exclude 'tests/.*' \
+            --exclude 'python/.*' \
+            --xml-pretty \
+            --output build-cov/coverage.xml \
+            --html-details build-cov/coverage.html
+      - name: Upload coverage artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: coverage-report
+          path: |
+            build-cov/coverage.xml
+            build-cov/coverage.html
