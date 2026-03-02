@@ -1,4 +1,5 @@
-#include <filesystem>
+#include <cstdlib>
+#include <cstdio>
 #include <fstream>
 #include <string>
 
@@ -7,7 +8,7 @@
 #ifdef CASTE_CLI_PATH
 namespace {
 
-std::string read_file_to_string(const std::filesystem::path& p) {
+std::string read_file_to_string(const std::string& p) {
     std::ifstream f(p);
     std::string s((std::istreambuf_iterator<char>(f)),
                   std::istreambuf_iterator<char>());
@@ -15,21 +16,18 @@ std::string read_file_to_string(const std::filesystem::path& p) {
 }
 
 int run_cli_and_capture(const std::string& args, std::string& output) {
-    std::filesystem::path out_path =
-        std::filesystem::temp_directory_path() /
-        std::filesystem::path("caste_cli_test_output.txt");
+    const std::string out_path = "caste_cli_test_output.txt";
     std::string cmd = "\"";
     cmd += CASTE_CLI_PATH;
     cmd += "\" ";
     cmd += args;
     cmd += " > \"";
-    cmd += out_path.string();
+    cmd += out_path;
     cmd += "\" 2>&1";
 
     int rc = std::system(cmd.c_str());
     output = read_file_to_string(out_path);
-    std::error_code ec;
-    std::filesystem::remove(out_path, ec);
+    std::remove(out_path.c_str());
     return rc;
 }
 
