@@ -14,12 +14,62 @@ jobs:
       - uses: actions/setup-python@v5
         with:
           python-version: "3.12"
-      - name: Build wheels
+      - name: Build sdist and wheels
         run: |
-          python -m pip install -U pip cibuildwheel
-          python -m cibuildwheel --output-dir python/dist python
+          python -m pip install -U pip build cibuildwheel
+          CASTE_VERSION="$(python - <<'PY'
+          import tomllib
+          with open("python/pyproject.toml", "rb") as f:
+              print(tomllib.load(f)["project"]["version"])
+          PY
+          )"
+          test -n "$CASTE_VERSION"
+          rm -rf dist .pypi-stage
+          mkdir -p dist .pypi-stage
+          rsync -a --delete \
+            --exclude '.git/' \
+            --exclude '.github/' \
+            --exclude '.pypi-stage/' \
+            --exclude 'build/' \
+            --exclude 'dist/' \
+            --exclude 'venv/' \
+            --exclude 'python/build/' \
+            --exclude 'python/dist/' \
+            ./ .pypi-stage/
+          cat > .pypi-stage/pyproject.toml << EOF
+          [build-system]
+          requires = ["scikit-build-core>=0.10.0", "pybind11>=2.11.0"]
+          build-backend = "scikit_build_core.build"
+
+          [project]
+          name = "caste"
+          version = "${CASTE_VERSION}"
+          description = "Opinionated hardware classification library."
+          readme = "python/README.md"
+          requires-python = ">=3.8"
+          license = "MIT"
+          authors = [{ name = "Zeth", email = "holdercardteam+caste@gmail.com" }]
+          keywords = ["hardware", "classification", "system-info", "gpu", "cpu"]
+
+          [project.urls]
+          Repository = "https://github.com/zeth/caste"
+          Issues = "https://github.com/zeth/caste/issues"
+
+          [project.optional-dependencies]
+          test = ["pytest"]
+
+          [tool.scikit-build]
+          cmake.version = ">=3.20"
+          cmake.source-dir = "python"
+          build-dir = "python/build"
+          cmake.build-type = "Release"
+          cmake.define = { CASTE_BUILD_PYTHON = "OFF", CASTE_BUILD_TESTS = "OFF", CASTE_BUILD_CLI = "OFF" }
+          wheel.packages = ["python/caste"]
+          EOF
+          python -m build --sdist --outdir dist .pypi-stage
+          python -m cibuildwheel --output-dir dist .pypi-stage
       - name: Upload to TestPyPI
         uses: pypa/gh-action-pypi-publish@release/v1
         with:
           repository-url: https://test.pypi.org/legacy/
-          packages-dir: python/dist
+          packages-dir: dist
