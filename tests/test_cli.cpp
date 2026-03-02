@@ -1,6 +1,5 @@
 #include <cstdlib>
 #include <cstdio>
-#include <fstream>
 #include <string>
 
 #include <catch2/catch_test_macros.hpp>
@@ -8,27 +7,30 @@
 #ifdef CASTE_CLI_PATH
 namespace {
 
-std::string read_file_to_string(const std::string& p) {
-    std::ifstream f(p);
-    std::string s((std::istreambuf_iterator<char>(f)),
-                  std::istreambuf_iterator<char>());
-    return s;
-}
+#if defined(_WIN32)
+#define CASTE_POPEN _popen
+#define CASTE_PCLOSE _pclose
+#else
+#define CASTE_POPEN popen
+#define CASTE_PCLOSE pclose
+#endif
 
 int run_cli_and_capture(const std::string& args, std::string& output) {
-    const std::string out_path = "caste_cli_test_output.txt";
     std::string cmd = "\"";
     cmd += CASTE_CLI_PATH;
     cmd += "\" ";
     cmd += args;
-    cmd += " > \"";
-    cmd += out_path;
-    cmd += "\" 2>&1";
+    cmd += " 2>&1";
 
-    int rc = std::system(cmd.c_str());
-    output = read_file_to_string(out_path);
-    std::remove(out_path.c_str());
-    return rc;
+    FILE* pipe = CASTE_POPEN(cmd.c_str(), "r");
+    if (!pipe) return -1;
+
+    output.clear();
+    char buf[512];
+    while (std::fgets(buf, sizeof(buf), pipe) != nullptr) {
+        output += buf;
+    }
+    return CASTE_PCLOSE(pipe);
 }
 
 bool output_has_caste_word(const std::string& out) {
