@@ -35,5 +35,6 @@ jobs:
       - name: Install and test
         run: |
           python -m pip install -U pip
+          cd python
           python -m pip install -e ".[test]"
-          python -m pytest -q python/tests
+          python -m pytest -q
