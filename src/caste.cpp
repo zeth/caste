@@ -72,10 +72,14 @@ CasteResult classify_caste(const HwFacts& hw) {
         else if (hw.ram_bytes >= GiB(24)) base = Caste::Developer;
         else                              base = Caste::User;
         out.reason = "unified memory (Apple Silicon) caste by RAM";
-    } else {
+    } else if (hw.gpu_kind == GpuKind::Integrated) {
         // Integrated GPU (Intel/AMD iGPU): default to User if >=8GB RAM.
         base = Caste::User;
         out.reason = "integrated GPU caste";
+    } else {
+        // No GPU signal (or unknown): keep conservative User baseline.
+        base = Caste::User;
+        out.reason = "no discrete GPU detected";
     }
 
     // 2) Intel Arc special-case
@@ -131,7 +135,7 @@ HwFacts fill_hw_facts_platform();
 HwFacts fill_hw_facts_platform();
 #elif defined(_WIN32)
 HwFacts fill_hw_facts_platform();
-#elif defined(__FreeBSD__) || defined(__NetBSD__) || defined(__OpenBSD__)
+#elif defined(__FreeBSD__) || defined(__NetBSD__) || defined(__OpenBSD__) || defined(__DragonFly__)
 HwFacts fill_hw_facts_platform();
 #else
 static HwFacts fill_hw_facts_platform() {

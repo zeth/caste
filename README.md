@@ -37,6 +37,12 @@ If you want to know why that machine was placed in that caste, use the --reason 
 caste --reason
 ```
 
+If you want to inspect the detected hardware facts directly:
+
+```bash
+caste --hwfacts
+```
+
 ## C++ Library Usage
 
 ### Header + API
@@ -177,7 +183,13 @@ For unusually powerful systems:
 * Ubuntu 24.04
 * Windows 11
 * macOS 15 (Sequoia)
-* FreeBSD 14.3
+* Alpine 3.23
+* Fedora 43
+* FreeBSD 14.3 and 15.0
+* NetBSD 10.1
+* OpenBSD 7.8
+* DragonFly 6.4.2
+* Arch (rolling, 2026-02-20, GCC 15.2.1, Kernel 6.18.9-arch1-2)
 
 ### Expected to work on
 
@@ -187,9 +199,6 @@ For unusually powerful systems:
 
 ### Planned or experimental support
 
-* OpenBSD
-* NetBSD
-* DragonFly BSD
 * Haiku
 * OpenIndiana
 * Older macOS versions (10–11)

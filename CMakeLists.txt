@@ -5,12 +5,26 @@ project(caste VERSION 0.1.0 LANGUAGES CXX)
 option(CASTE_BUILD_TESTS "Build caste tests" ON)
 option(CASTE_BUILD_PYTHON "Build Python extension module" OFF)
 
+set(CASTE_PLATFORM_SOURCES)
+if (WIN32)
+    list(APPEND CASTE_PLATFORM_SOURCES src/platforms/win.cpp)
+elseif (APPLE)
+    list(APPEND CASTE_PLATFORM_SOURCES src/platforms/mac.cpp)
+elseif (CMAKE_SYSTEM_NAME STREQUAL "Linux")
+    list(APPEND CASTE_PLATFORM_SOURCES src/platforms/linux.cpp)
+elseif (CMAKE_SYSTEM_NAME MATCHES "^(FreeBSD|NetBSD|OpenBSD|DragonFly)$")
+    list(APPEND CASTE_PLATFORM_SOURCES
+        src/platforms/bsd/common.cpp
+        src/platforms/bsd/dragonfly.cpp
+        src/platforms/bsd/freebsd.cpp
+        src/platforms/bsd/netbsd.cpp
+        src/platforms/bsd/openbsd.cpp
+    )
+endif()
+
 add_library(caste
     src/caste.cpp
-    src/platforms/linux.cpp
-    src/platforms/mac.cpp
-    src/platforms/bsd.cpp
-    src/platforms/win.cpp
+    ${CASTE_PLATFORM_SOURCES}
 )
 set_target_properties(caste PROPERTIES POSITION_INDEPENDENT_CODE ON)
 
