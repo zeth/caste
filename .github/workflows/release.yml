@@ -46,6 +46,13 @@ jobs:
       - name: Build sdist and wheels
         run: |
           python -m pip install -U pip build cibuildwheel
+          CASTE_VERSION="$(python - <<'PY'
+          import tomllib
+          with open("python/pyproject.toml", "rb") as f:
+              print(tomllib.load(f)["project"]["version"])
+          PY
+          )"
+          test -n "$CASTE_VERSION"
           rm -rf dist .pypi-stage
           mkdir -p dist .pypi-stage
           rsync -a --delete \
@@ -58,14 +65,14 @@ jobs:
             --exclude 'python/build/' \
             --exclude 'python/dist/' \
             ./ .pypi-stage/
-          cat > .pypi-stage/pyproject.toml << 'EOF'
+          cat > .pypi-stage/pyproject.toml << EOF
           [build-system]
           requires = ["scikit-build-core>=0.10.0", "pybind11>=2.11.0"]
           build-backend = "scikit_build_core.build"
 
           [project]
           name = "caste"
-          version = "0.1.2.1"
+          version = "${CASTE_VERSION}"
           description = "Opinionated hardware classification library."
           readme = "python/README.md"
           requires-python = ">=3.8"
