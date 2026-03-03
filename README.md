@@ -181,7 +181,7 @@ For unusually powerful systems:
 ## Tested operating systems
 
 * Ubuntu 24.04
-* Windows 11
+* Windows 10 and 11
 * macOS 15 (Sequoia)
 * Alpine 3.23
 * Fedora 43
@@ -197,7 +197,7 @@ For unusually powerful systems:
 * Any modern Linux distribution
 * macOS 12 (Monterey), 13 (Ventura), 14 (Sonoma)
 
-### Planned or experimental support
+### Planned support
 
 * Haiku
 * OpenIndiana
