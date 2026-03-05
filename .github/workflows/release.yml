@@ -8,8 +8,6 @@ on:
 jobs:
   cpp-artifacts:
     runs-on: ${{ matrix.os }}
-    permissions:
-      contents: write
     strategy:
       fail-fast: false
       matrix:
@@ -28,10 +26,28 @@ jobs:
           name="caste-${{ runner.os }}-${{ github.ref_name }}"
           cd stage
           tar -czf "../${name}.tar.gz" .
-      - name: Upload release asset
+      - name: Upload workflow artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: cpp-artifact-${{ runner.os }}
+          path: caste-*.tar.gz
+
+  publish-release:
+    runs-on: ubuntu-latest
+    needs: cpp-artifacts
+    permissions:
+      contents: write
+    steps:
+      - name: Download cpp artifacts
+        uses: actions/download-artifact@v4
+        with:
+          pattern: cpp-artifact-*
+          merge-multiple: true
+          path: release-assets
+      - name: Upload release assets
         uses: softprops/action-gh-release@v2
         with:
-          files: caste-*.tar.gz
+          files: release-assets/caste-*.tar.gz
 
   pypi:
     runs-on: ubuntu-latest
