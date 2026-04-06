@@ -138,6 +138,24 @@ TEST_CASE("Caste ranges normalize reversed endpoints") {
     REQUIRE_FALSE(rigs_down_to_user.contains(Caste::Mini));
 }
 
+TEST_CASE("Predefined caste ranges cover common policy bands") {
+    REQUIRE(user_or_below.contains(Caste::Mini));
+    REQUIRE(user_or_below.contains(Caste::User));
+    REQUIRE_FALSE(user_or_below.contains(Caste::Developer));
+
+    REQUIRE_FALSE(user_or_above.contains(Caste::Mini));
+    REQUIRE(user_or_above.contains(Caste::User));
+    REQUIRE(user_or_above.contains(Caste::Rig));
+
+    REQUIRE(dev_or_below.contains(Caste::Mini));
+    REQUIRE(dev_or_below.contains(Caste::Developer));
+    REQUIRE_FALSE(dev_or_below.contains(Caste::Workstation));
+
+    REQUIRE_FALSE(dev_or_above.contains(Caste::User));
+    REQUIRE(dev_or_above.contains(Caste::Developer));
+    REQUIRE(dev_or_above.contains(Caste::Rig));
+}
+
 namespace {
 bool is_valid_caste(Caste c) {
     switch (c) {

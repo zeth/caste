@@ -56,6 +56,11 @@ struct CasteRange {
     }
 };
 
+constexpr CasteRange user_or_below{Caste::Mini, Caste::User};
+constexpr CasteRange user_or_above{Caste::User, Caste::Rig};
+constexpr CasteRange dev_or_below{Caste::Mini, Caste::Developer};
+constexpr CasteRange dev_or_above{Caste::Developer, Caste::Rig};
+
 enum class GpuKind {
     None,
     Integrated,   // Intel UHD/Iris Xe, AMD iGPU, etc. (shared memory)

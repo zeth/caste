@@ -85,6 +85,14 @@ if (user_or_below.contains(caste)) {
 }
 ```
 
+Common policy bands are also provided directly:
+
+```cpp
+if (dev_or_above.contains(caste)) {
+    // developer, workstation, or rig
+}
+```
+
 If you only want the single-word label:
 
 ```cpp
