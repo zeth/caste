@@ -61,6 +61,30 @@ auto result = detect_caste();
 // result.reason is a short string (optional)
 ```
 
+If you want to use the detected caste in policy code,
+`caste` supports direct comparisons:
+
+```cpp
+Caste caste = detect_caste().caste;
+
+if (caste >= Caste::Developer) {
+    // developer, workstation, or rig
+}
+```
+
+You can also define reusable ranges:
+
+```cpp
+constexpr CasteRange user_or_below{
+    Caste::Mini,
+    Caste::User
+};
+
+if (user_or_below.contains(caste)) {
+    // mini or user
+}
+```
+
 If you only want the single-word label:
 
 ```cpp

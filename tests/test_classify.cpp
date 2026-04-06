@@ -80,6 +80,52 @@ TEST_CASE("Caste names are stable") {
     REQUIRE(std::string(caste_name(Caste::Rig)) == "Rig");
 }
 
+TEST_CASE("Castes support direct ordered comparison") {
+    REQUIRE(Caste::Mini < Caste::User);
+    REQUIRE(Caste::User < Caste::Developer);
+    REQUIRE(Caste::Developer < Caste::Workstation);
+    REQUIRE(Caste::Workstation < Caste::Rig);
+
+    REQUIRE(Caste::Rig > Caste::Workstation);
+    REQUIRE(Caste::Workstation >= Caste::Developer);
+    REQUIRE(Caste::Developer >= Caste::Developer);
+    REQUIRE(Caste::User <= Caste::Developer);
+    REQUIRE(Caste::Mini <= Caste::Mini);
+}
+
+TEST_CASE("Named caste comparison helpers match operator semantics") {
+    REQUIRE(caste_at_least(Caste::Developer, Caste::Developer));
+    REQUIRE(caste_at_least(Caste::Workstation, Caste::Developer));
+    REQUIRE(caste_at_least(Caste::Rig, Caste::Developer));
+    REQUIRE_FALSE(caste_at_least(Caste::User, Caste::Developer));
+
+    REQUIRE(caste_at_most(Caste::Mini, Caste::User));
+    REQUIRE(caste_at_most(Caste::User, Caste::User));
+    REQUIRE_FALSE(caste_at_most(Caste::Developer, Caste::User));
+}
+
+TEST_CASE("Caste ranges support reusable policy buckets") {
+    constexpr CasteRange user_or_below{Caste::Mini, Caste::User};
+    constexpr CasteRange dev_or_above{Caste::Developer, Caste::Rig};
+    constexpr CasteRange dev_to_workstation{
+        Caste::Developer,
+        Caste::Workstation
+    };
+
+    REQUIRE(user_or_below.contains(Caste::Mini));
+    REQUIRE(user_or_below.contains(Caste::User));
+    REQUIRE_FALSE(user_or_below.contains(Caste::Developer));
+
+    REQUIRE(dev_or_above.contains(Caste::Developer));
+    REQUIRE(dev_or_above.contains(Caste::Workstation));
+    REQUIRE(dev_or_above.contains(Caste::Rig));
+    REQUIRE_FALSE(dev_or_above.contains(Caste::User));
+
+    REQUIRE(dev_to_workstation.contains(Caste::Developer));
+    REQUIRE(dev_to_workstation.contains(Caste::Workstation));
+    REQUIRE_FALSE(dev_to_workstation.contains(Caste::Rig));
+}
+
 namespace {
 bool is_valid_caste(Caste c) {
     switch (c) {
