@@ -126,6 +126,18 @@ TEST_CASE("Caste ranges support reusable policy buckets") {
     REQUIRE_FALSE(dev_to_workstation.contains(Caste::Rig));
 }
 
+TEST_CASE("Caste ranges normalize reversed endpoints") {
+    constexpr CasteRange rigs_down_to_user{Caste::Rig, Caste::User};
+
+    REQUIRE(rigs_down_to_user.lower() == Caste::User);
+    REQUIRE(rigs_down_to_user.upper() == Caste::Rig);
+    REQUIRE(rigs_down_to_user.contains(Caste::User));
+    REQUIRE(rigs_down_to_user.contains(Caste::Developer));
+    REQUIRE(rigs_down_to_user.contains(Caste::Workstation));
+    REQUIRE(rigs_down_to_user.contains(Caste::Rig));
+    REQUIRE_FALSE(rigs_down_to_user.contains(Caste::Mini));
+}
+
 namespace {
 bool is_valid_caste(Caste c) {
     switch (c) {

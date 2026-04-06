@@ -43,8 +43,16 @@ struct CasteRange {
     Caste min;
     Caste max;
 
+    constexpr Caste lower() const {
+        return min <= max ? min : max;
+    }
+
+    constexpr Caste upper() const {
+        return min <= max ? max : min;
+    }
+
     constexpr bool contains(Caste caste) const {
-        return caste >= min && caste <= max;
+        return caste >= lower() && caste <= upper();
     }
 };
 
