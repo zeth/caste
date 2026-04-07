@@ -9,6 +9,10 @@ permissions:
 jobs:
   pypi-test-build:
     runs-on: ubuntu-latest
+    env:
+      PIP_CONSTRAINT: ${{ github.workspace }}/python/constraints-ci.txt
+      PIP_REQUIRE_HASHES: "1"
+      CIBW_ENVIRONMENT: PIP_CONSTRAINT=/project/python/constraints-ci.txt PIP_REQUIRE_HASHES=1
     steps:
       - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
         with:
@@ -18,7 +22,7 @@ jobs:
           python-version: "3.12"
       - name: Build sdist and wheels
         run: |
-          python -m pip install "build==1.4.2" "cibuildwheel==3.4.1"
+          python -m pip install --require-hashes -r python/constraints-ci.txt
           CASTE_VERSION="$(python - <<'PY'
           import tomllib
           with open("python/pyproject.toml", "rb") as f:
