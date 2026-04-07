@@ -57,9 +57,6 @@ jobs:
           Repository = "https://github.com/zeth/caste"
           Issues = "https://github.com/zeth/caste/issues"
 
-          [project.optional-dependencies]
-          test = ["pytest"]
-
           [tool.scikit-build]
           cmake.version = ">=3.20"
           cmake.source-dir = "python"

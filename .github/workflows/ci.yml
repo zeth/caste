@@ -44,10 +44,9 @@ jobs:
           cd python
           python -m pip install \
             "scikit-build-core==0.10.0" \
-            "pybind11==2.11.0" \
-            "pytest==7.4.4"
+            "pybind11==2.11.0"
           python -m pip install --no-build-isolation -e .
-          python -m pytest -q
+          python -m unittest discover -s tests -p 'test_*.py'
 
   coverage:
     runs-on: ubuntu-latest
