@@ -1,0 +1,14 @@
+# Pinned Python test/build toolchain for the CI matrix.
+# Install with:
+#   python -m pip install --require-hashes -r python/constraints-test.txt
+
+scikit-build-core==0.10.0 \
+    --hash=sha256:d6ba451a84da6515b696d1aaecc935ce4e7a28ed18a8093d6effa2726d50e3fe
+pybind11==2.11.0 \
+    --hash=sha256:307443ea89b73ce88f68fa48687d160c036622a54bc2a25aae9d5ea792bef268
+packaging==26.0 \
+    --hash=sha256:b36f1fef9334a5588b4166f8bcd26a14e521f2b55e6b9de3aaa80d3ff7a37529
+pathspec==1.0.4 \
+    --hash=sha256:fb6ae2fd4e7c921a165808a552060e722767cfa526f99ca5156ed2ce45a5c723
+tomli==2.3.0 ; python_version < "3.11" \
+    --hash=sha256:64be704a875d2a59753d80ee8a533c3fe183e3f06807ff7dc2232938ccb01549
