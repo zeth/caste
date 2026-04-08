@@ -11,6 +11,56 @@ enum class Caste {
     Rig
 };
 
+constexpr int caste_rank(Caste caste) {
+    return static_cast<int>(caste);
+}
+
+constexpr bool operator>=(Caste a, Caste b) {
+    return caste_rank(a) >= caste_rank(b);
+}
+
+constexpr bool operator<=(Caste a, Caste b) {
+    return caste_rank(a) <= caste_rank(b);
+}
+
+constexpr bool operator>(Caste a, Caste b) {
+    return caste_rank(a) > caste_rank(b);
+}
+
+constexpr bool operator<(Caste a, Caste b) {
+    return caste_rank(a) < caste_rank(b);
+}
+
+constexpr bool caste_at_least(Caste actual, Caste minimum) {
+    return actual >= minimum;
+}
+
+constexpr bool caste_at_most(Caste actual, Caste maximum) {
+    return actual <= maximum;
+}
+
+struct CasteRange {
+    Caste min;
+    Caste max;
+
+    constexpr Caste lower() const {
+        return min <= max ? min : max;
+    }
+
+    constexpr Caste upper() const {
+        return min <= max ? max : min;
+    }
+
+    constexpr bool contains(Caste caste) const {
+        return caste >= lower() && caste <= upper();
+    }
+};
+
+constexpr CasteRange user_or_below{Caste::Mini, Caste::User};
+constexpr CasteRange user_or_above{Caste::User, Caste::Rig};
+constexpr CasteRange dev_or_below{Caste::Mini, Caste::Developer};
+constexpr CasteRange dev_or_above{Caste::Developer, Caste::Rig};
+
 enum class GpuKind {
     None,
     Integrated,   // Intel UHD/Iris Xe, AMD iGPU, etc. (shared memory)
