@@ -42,7 +42,7 @@ jobs:
       - name: Install and test
         run: |
           cd python
-          python -m pip install --require-hashes -r constraints-ci.txt
+          python -m pip install --require-hashes -r constraints-test.txt
           python -m pip install --no-build-isolation -e .
           python -m unittest discover -s tests -p 'test_*.py'
 
