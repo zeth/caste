@@ -100,7 +100,7 @@ jobs:
           description = "Opinionated hardware classification library."
           readme = "python/README.md"
           requires-python = ">=3.8"
-          license = "MIT"
+          license = { text = "MIT" }
           authors = [{ name = "Zeth", email = "holdercardteam+caste@gmail.com" }]
           keywords = ["hardware", "classification", "system-info", "gpu", "cpu"]
 
