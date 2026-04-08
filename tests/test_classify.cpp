@@ -129,8 +129,8 @@ TEST_CASE("Caste ranges support reusable policy buckets") {
 TEST_CASE("Caste ranges normalize reversed endpoints") {
     constexpr CasteRange rigs_down_to_user{Caste::Rig, Caste::User};
 
-    REQUIRE(rigs_down_to_user.lower() == Caste::User);
-    REQUIRE(rigs_down_to_user.upper() == Caste::Rig);
+    REQUIRE(rigs_down_to_user.min == Caste::User);
+    REQUIRE(rigs_down_to_user.max == Caste::Rig);
     REQUIRE(rigs_down_to_user.contains(Caste::User));
     REQUIRE(rigs_down_to_user.contains(Caste::Developer));
     REQUIRE(rigs_down_to_user.contains(Caste::Workstation));

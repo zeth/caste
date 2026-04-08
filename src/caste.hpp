@@ -2,6 +2,7 @@
 
 #include <cstdint>
 #include <string>
+#include <algorithm>
 
 enum class Caste {
     Mini,
@@ -43,16 +44,16 @@ struct CasteRange {
     Caste min;
     Caste max;
 
-    constexpr Caste lower() const {
-        return min <= max ? min : max;
-    }
-
-    constexpr Caste upper() const {
-        return min <= max ? max : min;
+    constexpr CasteRange(Caste a, Caste b)
+        : min{}, max{}
+    {
+        auto [lo, hi] = std::minmax(a, b);
+        min = lo;
+        max = hi;
     }
 
     constexpr bool contains(Caste caste) const {
-        return caste >= lower() && caste <= upper();
+        return caste >= min && caste <= max;
     }
 };
 
