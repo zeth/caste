@@ -22,11 +22,16 @@ elseif (CMAKE_SYSTEM_NAME MATCHES "^(FreeBSD|NetBSD|OpenBSD|DragonFly)$")
     )
 endif()
 
-add_library(caste
+add_library(caste SHARED
     src/caste.cpp
     ${CASTE_PLATFORM_SOURCES}
 )
-set_target_properties(caste PROPERTIES POSITION_INDEPENDENT_CODE ON)
+
+set_target_properties(caste PROPERTIES
+    VERSION ${PROJECT_VERSION}
+    SOVERSION 0
+    POSITION_INDEPENDENT_CODE ON
+)
 
 if (WIN32)
     target_link_libraries(caste PRIVATE dxgi)
