@@ -1,10 +1,11 @@
 Source: caste
 Section: libs
 Priority: optional
-Maintainer: zeth <zeth@holder.team>
+Maintainer: zeth <holdercardteam@gmail.com>
 Build-Depends: debhelper-compat (= 13),
  cmake,
  ninja-build,
+ caste2,
  dh-sequence-python3,
  dh-python,
  python3-all-dev,

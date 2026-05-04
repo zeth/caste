@@ -1,6 +1,6 @@
 cmake_minimum_required(VERSION 3.20)
 
-project(caste VERSION 0.1.4 LANGUAGES CXX)
+project(caste VERSION 0.1.5 LANGUAGES CXX)
 
 option(CASTE_BUILD_TESTS "Build caste tests" ON)
 option(CASTE_BUILD_PYTHON "Build Python extension module" OFF)
