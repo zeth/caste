@@ -22,10 +22,22 @@ elseif (CMAKE_SYSTEM_NAME MATCHES "^(FreeBSD|NetBSD|OpenBSD|DragonFly)$")
     )
 endif()
 
-add_library(caste SHARED
-    src/caste.cpp
-    ${CASTE_PLATFORM_SOURCES}
-)
+
+option(CASTE_BUILD_SHARED "Build libcaste as a shared library" ON)
+
+if (CASTE_BUILD_SHARED)
+    add_library(caste SHARED
+        src/caste.cpp
+        ${CASTE_PLATFORM_SOURCES}
+    )
+else()
+    add_library(caste STATIC
+        src/caste.cpp
+        ${CASTE_PLATFORM_SOURCES}
+    )
+endif()
+
+
 
 set_target_properties(caste PROPERTIES
     VERSION ${PROJECT_VERSION}
