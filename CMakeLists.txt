@@ -1,6 +1,6 @@
 cmake_minimum_required(VERSION 3.20)
 
-project(caste VERSION 0.1.0 LANGUAGES CXX)
+project(caste VERSION 0.1.4 LANGUAGES CXX)
 
 option(CASTE_BUILD_TESTS "Build caste tests" ON)
 option(CASTE_BUILD_PYTHON "Build Python extension module" OFF)
@@ -105,10 +105,6 @@ endif()
 
 install(FILES ${CMAKE_CURRENT_SOURCE_DIR}/man/caste.1
     DESTINATION ${CMAKE_INSTALL_MANDIR}/man1
-)
-
-install(FILES ${CMAKE_CURRENT_SOURCE_DIR}/LICENSE
-    DESTINATION ${CMAKE_INSTALL_DATADIR}/doc/caste
 )
 
 install(EXPORT casteTargets
