@@ -34,6 +34,9 @@ set_target_properties(caste PROPERTIES
 )
 
 if (WIN32)
+    set_target_properties(caste PROPERTIES
+        WINDOWS_EXPORT_ALL_SYMBOLS ON
+    )
     target_link_libraries(caste PRIVATE dxgi)
 endif()
 if (APPLE)
