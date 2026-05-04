@@ -12,6 +12,8 @@ set(PYBIND11_FINDPYTHON ON)
 find_package(pybind11 CONFIG REQUIRED)
 find_package(Python COMPONENTS Interpreter REQUIRED)
 
+option(CASTE_DEBIAN_INSTALL_LAYOUT "Use Debian Python install layout" OFF)
+
 pybind11_add_module(_caste caste_bindings.cpp)
 target_link_libraries(_caste PRIVATE caste)
 target_include_directories(_caste PRIVATE ${CMAKE_CURRENT_LIST_DIR}/../src)
@@ -21,12 +23,20 @@ set_target_properties(_caste PROPERTIES
     CXX_STANDARD_REQUIRED YES
 )
 
-execute_process(
-    COMMAND "${Python_EXECUTABLE}" -c "import sysconfig; print(sysconfig.get_path('platlib'))"
-    OUTPUT_VARIABLE PYTHON_PLATLIB
-    OUTPUT_STRIP_TRAILING_WHITESPACE
-)
+if (CASTE_DEBIAN_INSTALL_LAYOUT)
+    execute_process(
+        COMMAND "${Python_EXECUTABLE}" -c "import sysconfig; print(sysconfig.get_path('platlib'))"
+        OUTPUT_VARIABLE PYTHON_PLATLIB
+        OUTPUT_STRIP_TRAILING_WHITESPACE
+    )
 
-install(TARGETS _caste
-    LIBRARY DESTINATION "${PYTHON_PLATLIB}/caste"
-)
+    install(TARGETS _caste
+        LIBRARY DESTINATION "${PYTHON_PLATLIB}/caste"
+    )
+else()
+    install(TARGETS _caste
+        LIBRARY DESTINATION caste
+        RUNTIME DESTINATION caste
+        ARCHIVE DESTINATION caste
+    )
+endif()
