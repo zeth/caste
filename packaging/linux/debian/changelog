@@ -1,6 +1,6 @@
-caste (0.1.4) noble; urgency=medium
-  * initial PPA package.
- -- Holder Team <holdercardteam@gmail.com>  Mon, 04 May 2026 12:00:00 +0100
 caste (0.1.5) noble; urgency=medium
   * Add missing caste2 dependency
  -- Holder Team <holdercardteam@gmail.com>  Mon, 04 May 2026 16:00:00 +0100
+caste (0.1.4) noble; urgency=medium
+  * initial PPA package.
+ -- Holder Team <holdercardteam@gmail.com>  Mon, 04 May 2026 12:00:00 +0100
