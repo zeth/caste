@@ -1,3 +1,6 @@
+caste (0.1.6~resolute1) resolute; urgency=medium
+  * Build for resolute
+ -- Holder Team <holdercardteam@gmail.com>  Tue, 05 May 2026 07:33:19 +0100
 caste (0.1.5) noble; urgency=medium
   * Add missing caste2 dependency
  -- Holder Team <holdercardteam@gmail.com>  Mon, 04 May 2026 16:00:00 +0100
