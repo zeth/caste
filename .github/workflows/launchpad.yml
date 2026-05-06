@@ -1,0 +1,70 @@
+name: Upload Caste to Launchpad
+
+on:
+  push:
+    tags:
+      - "v*"
+
+jobs:
+  upload:
+    runs-on: ubuntu-24.04
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install Debian packaging tools
+        run: |
+          sudo apt update
+          sudo apt install -y \
+            devscripts \
+            debhelper \
+            dput \
+            gnupg \
+            cmake \
+            ninja-build \
+            catch2 \
+            dh-python \
+            dh-sequence-python3 \
+            python3-all-dev \
+            python3-pybind11
+
+      - name: Import GPG key
+        env:
+          PPA_GPG_PRIVATE_KEY: ${{ secrets.PPA_GPG_PRIVATE_KEY }}
+        run: |
+          mkdir -p ~/.gnupg
+          chmod 700 ~/.gnupg
+
+          echo "$PPA_GPG_PRIVATE_KEY" | gpg --batch --import
+
+          KEYID="$(gpg --list-secret-keys --with-colons | awk -F: '/^sec:/ {print $5; exit}')"
+          echo "DEBSIGN_KEYID=$KEYID" >> "$GITHUB_ENV"
+          echo "Using GPG key: $KEYID"
+
+          cat > ~/.gnupg/gpg.conf <<EOF
+          batch
+          yes
+          pinentry-mode loopback
+          EOF
+
+          cat > ~/.gnupg/gpg-agent.conf <<EOF
+          allow-loopback-pinentry
+          EOF
+
+          gpgconf --kill gpg-agent
+
+      - name: Prepare Debian directory
+        run: |
+          rm -rf debian build
+          cp -a packaging/linux/debian ./debian
+
+      - name: Build signed source package
+        env:
+          DEBFULLNAME: "Holder Team"
+          DEBEMAIL: "holdercardteam@gmail.com"
+        run: |
+          debuild -S -k"$DEBSIGN_KEYID"
+
+      - name: Upload to Launchpad PPA
+        run: |
+          dput ppa:holderteam/caste ../*_source.changes
