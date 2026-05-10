@@ -1,19 +1,20 @@
 cmake_minimum_required(VERSION 3.20)
 project(caste_python LANGUAGES CXX)
 
-# Build the core library from the repo root, but disable its own Python/CLI/tests.
-set(CASTE_BUILD_PYTHON OFF CACHE BOOL "" FORCE)
-set(CASTE_BUILD_TESTS OFF CACHE BOOL "" FORCE)
-set(CASTE_BUILD_CLI OFF CACHE BOOL "" FORCE)
+if (NOT TARGET caste)
+    set(CASTE_BUILD_SHARED OFF CACHE BOOL "" FORCE)
+    set(CASTE_BUILD_PYTHON OFF CACHE BOOL "" FORCE)
+    set(CASTE_BUILD_TESTS OFF CACHE BOOL "" FORCE)
+    set(CASTE_BUILD_CLI OFF CACHE BOOL "" FORCE)
+    add_subdirectory(".." "${CMAKE_CURRENT_BINARY_DIR}/caste-core")
+endif()
 
-add_subdirectory(".." "${CMAKE_CURRENT_BINARY_DIR}/caste-core")
-
-# Tell pybind11 to use modern FindPython (reduces noisy warnings on newer CMake)
 set(PYBIND11_FINDPYTHON ON)
-
 find_package(pybind11 CONFIG REQUIRED)
+find_package(Python COMPONENTS Interpreter REQUIRED)
 
-# Build the extension module.
+option(CASTE_DEBIAN_INSTALL_LAYOUT "Use Debian Python install layout" OFF)
+
 pybind11_add_module(_caste caste_bindings.cpp)
 target_link_libraries(_caste PRIVATE caste)
 target_include_directories(_caste PRIVATE ${CMAKE_CURRENT_LIST_DIR}/../src)
@@ -23,8 +24,20 @@ set_target_properties(_caste PROPERTIES
     CXX_STANDARD_REQUIRED YES
 )
 
-install(TARGETS _caste
-    LIBRARY DESTINATION caste
-    RUNTIME DESTINATION caste
-    ARCHIVE DESTINATION caste
-)
+if (CASTE_DEBIAN_INSTALL_LAYOUT)
+    execute_process(
+        COMMAND "${Python_EXECUTABLE}" -c "import sysconfig; print(sysconfig.get_path('platlib'))"
+        OUTPUT_VARIABLE PYTHON_PLATLIB
+        OUTPUT_STRIP_TRAILING_WHITESPACE
+    )
+
+    install(TARGETS _caste
+        LIBRARY DESTINATION "${PYTHON_PLATLIB}/caste"
+    )
+else()
+    install(TARGETS _caste
+        LIBRARY DESTINATION caste
+        RUNTIME DESTINATION caste
+        ARCHIVE DESTINATION caste
+    )
+endif()

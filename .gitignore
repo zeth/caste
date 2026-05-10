@@ -1,4 +1,5 @@
 build
+python/build/
 .vscode
 dist
 *.egg-info

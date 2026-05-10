@@ -1,0 +1,43 @@
+Source: caste
+Section: libs
+Priority: optional
+Maintainer: zeth <holdercardteam@gmail.com>
+Build-Depends: debhelper-compat (= 13),
+ cmake,
+ ninja-build,
+ catch2,
+ dh-sequence-python3,
+ dh-python,
+ python3-all-dev,
+ python3-pybind11
+Standards-Version: 4.6.2
+Homepage: https://holder.team/
+Rules-Requires-Root: no
+
+Package: libcaste0
+Architecture: any
+Section: libs
+Depends: ${shlibs:Depends}, ${misc:Depends}
+Description: Hardware T-Shirt Sizes
+ Shared C++ runtime library for detecting machine hardware and capabilities.
+
+Package: libcaste-dev
+Architecture: any
+Section: libdevel
+Depends: libcaste0 (= ${binary:Version}), ${misc:Depends}
+Description: Development files for libcaste
+ Headers, CMake config files, and other development files for using libcaste.
+
+Package: caste
+Architecture: any
+Section: utils
+Depends: libcaste0 (= ${binary:Version}), ${shlibs:Depends}, ${misc:Depends}
+Description: Hardware T-Shirt Sizes command-line tool
+ Command-line tool for inspecting local hardware capabilities.
+
+Package: python3-caste
+Architecture: any
+Section: python
+Depends: ${python3:Depends}, ${shlibs:Depends}, ${misc:Depends}
+Description: Python bindings for Caste
+ Python 3 module for accessing Caste hardware detection features.

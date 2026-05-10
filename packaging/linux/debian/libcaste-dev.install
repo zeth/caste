@@ -1,0 +1,3 @@
+usr/include/caste/
+usr/lib/*/libcaste.so
+usr/lib/*/cmake/caste/

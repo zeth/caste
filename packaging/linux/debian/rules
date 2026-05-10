@@ -1,0 +1,11 @@
+#!/usr/bin/make -f
+
+export DEB_BUILD_MAINT_OPTIONS = hardening=+all
+
+override_dh_auto_configure:
+	dh_auto_configure --buildsystem=cmake+ninja --builddirectory=build -- \
+		-DCASTE_BUILD_PYTHON=ON \
+		-DCASTE_DEBIAN_INSTALL_LAYOUT=ON
+
+%:
+	dh $@ --buildsystem=cmake+ninja --builddirectory=build

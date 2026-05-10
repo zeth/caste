@@ -1,6 +1,6 @@
 cmake_minimum_required(VERSION 3.20)
 
-project(caste VERSION 0.1.0 LANGUAGES CXX)
+project(caste VERSION 0.1.6 LANGUAGES CXX)
 
 option(CASTE_BUILD_TESTS "Build caste tests" ON)
 option(CASTE_BUILD_PYTHON "Build Python extension module" OFF)
@@ -22,13 +22,33 @@ elseif (CMAKE_SYSTEM_NAME MATCHES "^(FreeBSD|NetBSD|OpenBSD|DragonFly)$")
     )
 endif()
 
-add_library(caste
-    src/caste.cpp
-    ${CASTE_PLATFORM_SOURCES}
+
+option(CASTE_BUILD_SHARED "Build libcaste as a shared library" ON)
+
+if (CASTE_BUILD_SHARED)
+    add_library(caste SHARED
+        src/caste.cpp
+        ${CASTE_PLATFORM_SOURCES}
+    )
+else()
+    add_library(caste STATIC
+        src/caste.cpp
+        ${CASTE_PLATFORM_SOURCES}
+    )
+endif()
+
+
+
+set_target_properties(caste PROPERTIES
+    VERSION ${PROJECT_VERSION}
+    SOVERSION 0
+    POSITION_INDEPENDENT_CODE ON
 )
-set_target_properties(caste PROPERTIES POSITION_INDEPENDENT_CODE ON)
 
 if (WIN32)
+    set_target_properties(caste PROPERTIES
+        WINDOWS_EXPORT_ALL_SYMBOLS ON
+    )
     target_link_libraries(caste PRIVATE dxgi)
 endif()
 if (APPLE)
@@ -100,10 +120,6 @@ endif()
 
 install(FILES ${CMAKE_CURRENT_SOURCE_DIR}/man/caste.1
     DESTINATION ${CMAKE_INSTALL_MANDIR}/man1
-)
-
-install(FILES ${CMAKE_CURRENT_SOURCE_DIR}/LICENSE
-    DESTINATION ${CMAKE_INSTALL_DATADIR}/doc/caste
 )
 
 install(EXPORT casteTargets
