@@ -9,9 +9,9 @@ if (NOT TARGET caste)
     add_subdirectory(".." "${CMAKE_CURRENT_BINARY_DIR}/caste-core")
 endif()
 
+find_package(Python COMPONENTS Interpreter Development.Module REQUIRED)
 set(PYBIND11_FINDPYTHON ON)
 find_package(pybind11 CONFIG REQUIRED)
-find_package(Python COMPONENTS Interpreter REQUIRED)
 
 option(CASTE_DEBIAN_INSTALL_LAYOUT "Use Debian Python install layout" OFF)
 
