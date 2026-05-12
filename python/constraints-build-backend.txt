@@ -20,3 +20,5 @@ zipp==3.20.2 ; python_full_version < "3.10.2" \
     --hash=sha256:a817ac80d6cf4b23bf7f2828b7cabf326f15a001bea8b1f9b49631780ba28350
 exceptiongroup==1.3.1 ; python_version < "3.11" \
     --hash=sha256:a7a39a3bd276781e98394987d3a5701d0c4edffb633bb7a5144577f82c773598
+ninja==1.13.0 \
+    --hash=sha256:fb46acf6b93b8dd0322adc3a4945452a4e774b75b91293bafcc7b7f8e6517dfa
