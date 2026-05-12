@@ -1,6 +1,12 @@
 cmake_minimum_required(VERSION 3.20)
 
-project(caste VERSION 0.1.6 LANGUAGES CXX)
+file(STRINGS "${CMAKE_CURRENT_SOURCE_DIR}/VERSION" CASTE_PROJECT_VERSION LIMIT_COUNT 1)
+string(STRIP "${CASTE_PROJECT_VERSION}" CASTE_PROJECT_VERSION)
+if (NOT CASTE_PROJECT_VERSION MATCHES "^[0-9]+\\.[0-9]+\\.[0-9]+")
+    message(FATAL_ERROR "VERSION must contain a semantic version, got '${CASTE_PROJECT_VERSION}'")
+endif()
+
+project(caste VERSION "${CASTE_PROJECT_VERSION}" LANGUAGES CXX)
 include(GNUInstallDirs)
 
 option(CASTE_BUILD_TESTS "Build caste tests" ON)

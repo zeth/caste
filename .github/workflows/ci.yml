@@ -8,6 +8,33 @@ permissions:
   contents: read
 
 jobs:
+  version:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+        with:
+          persist-credentials: false
+      - name: Check version metadata
+        run: |
+          VERSION="$(tr -d '[:space:]' < VERSION)"
+          CMAKE_VERSION="$(python - <<'PY'
+          import re
+          from pathlib import Path
+          text = Path("CMakeLists.txt").read_text()
+          match = re.search(r'project\(caste VERSION "\$\{CASTE_PROJECT_VERSION\}"', text)
+          print("uses-version-file" if match else "")
+          PY
+          )"
+          PYPROJECT_VERSION="$(python - <<'PY'
+          import tomllib
+          with open("python/pyproject.toml", "rb") as f:
+              print(tomllib.load(f)["project"]["version"])
+          PY
+          )"
+          test -n "$VERSION"
+          test "$CMAKE_VERSION" = "uses-version-file"
+          test "$PYPROJECT_VERSION" = "$VERSION"
+
   cpp:
     runs-on: ${{ matrix.os }}
     strategy:
