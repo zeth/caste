@@ -4,10 +4,22 @@ on:
   push:
     tags:
       - "v*"
+  workflow_dispatch:
+    inputs:
+      version:
+        description: "Upstream version, for example 0.1.6"
+        required: true
+        default: "0.1.6"
 
 jobs:
   upload:
     runs-on: ubuntu-24.04
+    strategy:
+      fail-fast: false
+      matrix:
+        series:
+          - noble
+          - resolute
 
     steps:
       - uses: actions/checkout@v4
@@ -54,16 +66,33 @@ jobs:
           gpgconf --kill gpg-agent
 
       - name: Prepare Debian directory
+        env:
+          SERIES: ${{ matrix.series }}
+          INPUT_VERSION: ${{ github.event.inputs.version }}
         run: |
           rm -rf debian build
           cp -a packaging/linux/debian ./debian
+
+          if [ -n "$INPUT_VERSION" ]; then
+            VERSION="$INPUT_VERSION"
+          else
+            VERSION="${GITHUB_REF_NAME#v}"
+          fi
+
+          cat > debian/changelog <<EOF
+          caste (${VERSION}~${SERIES}1) ${SERIES}; urgency=medium
+
+            * Build for ${SERIES}
+
+           -- Holder Team <holdercardteam@gmail.com>  $(date -R)
+          EOF
 
       - name: Build signed source package
         env:
           DEBFULLNAME: "Holder Team"
           DEBEMAIL: "holdercardteam@gmail.com"
         run: |
-          debuild -S -k"$DEBSIGN_KEYID"
+          debuild -S -d -k"$DEBSIGN_KEYID"
 
       - name: Upload to Launchpad PPA
         run: |

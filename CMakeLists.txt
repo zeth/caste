@@ -1,6 +1,7 @@
 cmake_minimum_required(VERSION 3.20)
 
 project(caste VERSION 0.1.6 LANGUAGES CXX)
+include(GNUInstallDirs)
 
 option(CASTE_BUILD_TESTS "Build caste tests" ON)
 option(CASTE_BUILD_PYTHON "Build Python extension module" OFF)
@@ -102,7 +103,6 @@ if (CASTE_BUILD_TESTS)
     endif()
 endif()
 
-include(GNUInstallDirs)
 install(TARGETS caste
     EXPORT casteTargets
     ARCHIVE DESTINATION ${CMAKE_INSTALL_LIBDIR}
