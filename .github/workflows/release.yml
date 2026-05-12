@@ -112,7 +112,7 @@ jobs:
           cmake.define = { CASTE_BUILD_PYTHON = "OFF", CASTE_BUILD_TESTS = "OFF", CASTE_BUILD_CLI = "OFF" }
           wheel.packages = ["python/caste"]
           EOF
-          python -m build --sdist --outdir dist .pypi-stage
+          python -m build --sdist --no-isolation --outdir dist .pypi-stage
           python -m cibuildwheel --output-dir dist .pypi-stage
       - name: Upload PyPI workflow artifact
         uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
