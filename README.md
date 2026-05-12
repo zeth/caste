@@ -9,9 +9,21 @@ It inspects a user’s machine and assigns it to a small, practical category.
 
 Caste is provided as:
 
-* a C++ library,
-* a Python module,
-* a standalone executable suitable for shell scripts, build systems, and CI.
+- a C++ library,
+- a Python module,
+- a standalone executable suitable for shell scripts, build systems, and CI.
+
+# Binary Install
+
+On Ubuntu noble or resolute, you can use the PPA:
+
+`sudo add-apt-repository ppa:holderteam/caste`
+
+Then install some/all of the following packahges:
+
+`sudo apt install caste libcaste-dev python3-caste`
+
+For other operating systems, follow the build instructions below.
 
 ## Build Guide
 
@@ -141,23 +153,23 @@ AI inference, video processing, rendering, simulation, and even UI effects often
 
 Research consistently shows that:
 
-* Users form judgments about software very quickly [^1]
-* Most users never change default settings [^2]
+- Users form judgments about software very quickly [^1]
+- Most users never change default settings [^2]
 
 That means defaults matter more than documentation.
 
 Yet applications often launch with no idea whether they are running on:
 
-* a microcomputer,
-* an aging laptop,
-* a mid-range consumer PC,
-* or a high-end workstation.
+- a microcomputer,
+- an aging laptop,
+- a mid-range consumer PC,
+- or a high-end workstation.
 
 If defaults are tuned only for the developer’s machine, the result is predictable:
 
-* sluggish experiences on low-end hardware,
-* wasted capability on high-end systems,
-* unnecessary user frustration.
+- sluggish experiences on low-end hardware,
+- wasted capability on high-end systems,
+- unnecessary user frustration.
 
 Caste exists to close that gap.
 
@@ -167,10 +179,10 @@ There is a long tail of users running less powerful hardware than developers. [^
 
 When applications implicitly assume modern, high-end machines, they unintentionally exclude:
 
-* users in lower-income regions;
-* users extending the life of older devices;
-* schools, libraries, and shared computers;
-* embedded and low-power systems.
+- users in lower-income regions;
+- users extending the life of older devices;
+- schools, libraries, and shared computers;
+- embedded and low-power systems.
 
 Scaling behaviour by hardware capability makes software more inclusive without penalising performance where it is available.
 
@@ -186,10 +198,10 @@ Software that adapts gracefully to older machines helps keep them useful longer.
 
 Hardware detection code is:
 
-* low-level
-* platform-specific
-* verbose
-* usually written once and forgotten
+- low-level
+- platform-specific
+- verbose
+- usually written once and forgotten
 
 Embedding it directly into application logic pollutes codebases for minimal long-term value.
 
@@ -199,64 +211,68 @@ Caste isolates that complexity into a small, reusable library so your applicatio
 
 These cover the vast majority of use cases:
 
-* **Mini** — microcomputers, embedded systems, classic PCs
-* **User** — solid consumer-level machines
-* **Developer** — high-end personal computers
+- **Mini** — microcomputers, embedded systems, classic PCs
+- **User** — solid consumer-level machines
+- **Developer** — high-end personal computers
 
 ### Extended castes
 
 For unusually powerful systems:
 
-* **Workstation** — professional content-creation or high-end gaming machines
-* **Rig** — dedicated servers or specialised compute systems (e.g. AI inference/training)
+- **Workstation** — professional content-creation or high-end gaming machines
+- **Rig** — dedicated servers or specialised compute systems (e.g. AI inference/training)
 
 ## Tested operating systems
 
-* Ubuntu 24.04
-* Windows 10 and 11
-* macOS 15 (Sequoia)
-* Alpine 3.23
-* Fedora 43
-* FreeBSD 14.3 and 15.0
-* NetBSD 10.1
-* OpenBSD 7.8
-* DragonFly 6.4.2
-* Arch (rolling, 2026-02-20, GCC 15.2.1, Kernel 6.18.9-arch1-2)
+- Ubuntu 24.04
+- Windows 10 and 11
+- macOS 15 (Sequoia)
+- Alpine 3.23
+- Fedora 43
+- FreeBSD 14.3 and 15.0
+- NetBSD 10.1
+- OpenBSD 7.8
+- DragonFly 6.4.2
+- Arch (rolling, 2026-02-20, GCC 15.2.1, Kernel 6.18.9-arch1-2)
 
 ### Expected to work on
 
-* Windows 7 and later
-* Any modern Linux distribution
-* macOS 12 (Monterey), 13 (Ventura), 14 (Sonoma)
+- Windows 7 and later
+- Any modern Linux distribution
+- macOS 12 (Monterey), 13 (Ventura), 14 (Sonoma)
 
 ### Planned support
 
-* Haiku
-* OpenIndiana
-* Older macOS versions (10–11)
-* Windows XP
+- Haiku
+- OpenIndiana
+- Older macOS versions (10–11)
+- Windows XP
 
 ## References
 
-[^1]: **Nielsen Norman Group**.  
-      “Users often leave web pages in 10–20 seconds, but pages with a clear value proposition can hold people’s attention for much longer.”  
-      https://www.nngroup.com/articles/how-long-do-users-stay-on-web-pages/
+[^1]:
+    **Nielsen Norman Group**.  
+     “Users often leave web pages in 10–20 seconds, but pages with a clear value proposition can hold people’s attention for much longer.”  
+     https://www.nngroup.com/articles/how-long-do-users-stay-on-web-pages/
 
-[^2]: **Thaler, R. H., & Sunstein, C. R. (2008)**.  
-      *Nudge: Improving Decisions About Health, Wealth, and Happiness.*  
-      Yale University Press.  
-      Supporting UX discussion:  
-      https://www.nngroup.com/articles/default-settings/
+[^2]:
+    **Thaler, R. H., & Sunstein, C. R. (2008)**.  
+     _Nudge: Improving Decisions About Health, Wealth, and Happiness._  
+     Yale University Press.  
+     Supporting UX discussion:  
+     https://www.nngroup.com/articles/default-settings/
 
-[^3]: **World Bank**.  
-      “The digital divide persists across income groups, regions, and populations, affecting access to and effective use of digital technologies.”  
-      https://www.worldbank.org/en/topic/digitaldevelopment/brief/digital-divide  
-      **OECD**.  
-      “Differences in access to high-quality devices and infrastructure remain a key dimension of the digital divide.”  
-      https://www.oecd.org/digital/bridging-the-digital-divide/
+[^3]:
+    **World Bank**.  
+     “The digital divide persists across income groups, regions, and populations, affecting access to and effective use of digital technologies.”  
+     https://www.worldbank.org/en/topic/digitaldevelopment/brief/digital-divide  
+     **OECD**.  
+     “Differences in access to high-quality devices and infrastructure remain a key dimension of the digital divide.”  
+     https://www.oecd.org/digital/bridging-the-digital-divide/
 
-[^4]: **European Environment Agency**.  
-      “Extending the lifetime of electronic products is one of the most effective ways to reduce their environmental impacts.”  
-      https://www.eea.europa.eu/publications/electronics-and-obsolescence  
-      **UN Global E-waste Monitor**.  
-      https://ewastemonitor.info/
+[^4]:
+    **European Environment Agency**.  
+     “Extending the lifetime of electronic products is one of the most effective ways to reduce their environmental impacts.”  
+     https://www.eea.europa.eu/publications/electronics-and-obsolescence  
+     **UN Global E-waste Monitor**.  
+     https://ewastemonitor.info/
