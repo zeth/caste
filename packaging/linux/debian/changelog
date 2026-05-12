@@ -1,3 +1,9 @@
+caste (0.1.8) noble; urgency=medium
+
+  * Install the Python package initializer in python3-caste.
+
+ -- Holder Team <holdercardteam@gmail.com>  Tue, 12 May 2026 23:03:52 +0100
+
 caste (0.1.6~resolute1) resolute; urgency=medium
   * Build for resolute
  -- Holder Team <holdercardteam@gmail.com>  Tue, 05 May 2026 07:33:19 +0100

@@ -31,6 +31,9 @@ if (CASTE_DEBIAN_INSTALL_LAYOUT)
         OUTPUT_STRIP_TRAILING_WHITESPACE
     )
 
+    install(FILES "${CMAKE_CURRENT_LIST_DIR}/caste/__init__.py"
+        DESTINATION "${PYTHON_PLATLIB}/caste"
+    )
     install(TARGETS _caste
         LIBRARY DESTINATION "${PYTHON_PLATLIB}/caste"
     )
