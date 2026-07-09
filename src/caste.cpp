@@ -1,8 +1,14 @@
 #include "caste.hpp"
 
-static inline uint64_t GiB(uint64_t x) { return x * 1024ull * 1024ull * 1024ull; }
-static inline uint64_t MiB(uint64_t x) { return x * 1024ull * 1024ull; }
-static inline uint64_t ram_user_floor_bytes() { return GiB(8) - MiB(512); } // tolerate reserved memory
+static inline uint64_t GiB(uint64_t x) {
+    return x * 1024ull * 1024ull * 1024ull;
+}
+static inline uint64_t MiB(uint64_t x) {
+    return x * 1024ull * 1024ull;
+}
+static inline uint64_t ram_user_floor_bytes() {
+    return GiB(8) - MiB(512);
+} // tolerate reserved memory
 
 static Caste min_caste(Caste a, Caste b) {
     return (static_cast<int>(a) < static_cast<int>(b)) ? a : b;
@@ -14,8 +20,8 @@ static Caste max_caste(Caste a, Caste b) {
 static Caste caste_from_vram(uint64_t vram_bytes) {
     if (vram_bytes >= GiB(24)) return Caste::Rig;
     if (vram_bytes >= GiB(16)) return Caste::Workstation;
-    if (vram_bytes >= GiB(6))  return Caste::Developer;
-    if (vram_bytes >= GiB(2))  return Caste::User;
+    if (vram_bytes >= GiB(6)) return Caste::Developer;
+    if (vram_bytes >= GiB(2)) return Caste::User;
     return Caste::Mini; // dGPU with <2GB is basically Mini for modern local LLMs
 }
 
@@ -30,10 +36,15 @@ static Caste ram_cap(uint64_t ram_bytes) {
 }
 
 // Optional clamp by CPU. Keep this gentle; RAM/GPU dominate.
-static Caste cpu_cap(int physical_cores, int logical_threads) {
+struct CpuCapacityInput {
+    int physical_cores = 0;
+    int logical_threads = 0;
+};
+
+static Caste cpu_cap(CpuCapacityInput input) {
     // If you only have logical threads, pass physical_cores=0 and we’ll use threads.
-    const int cores = (physical_cores > 0) ? physical_cores : 0;
-    const int threads = logical_threads;
+    const int cores = (input.physical_cores > 0) ? input.physical_cores : 0;
+    const int threads = input.logical_threads;
 
     // Very low end
     if ((cores > 0 && cores < 4) || (cores == 0 && threads > 0 && threads < 8)) {
@@ -67,10 +78,14 @@ CasteResult classify_caste(const HwFacts& hw) {
         out.reason = "discrete GPU VRAM caste";
     } else if (hw.is_apple_silicon || hw.gpu_kind == GpuKind::Unified) {
         // Apple Silicon: treat RAM as the main budget signal.
-        if (hw.ram_bytes >= GiB(64))      base = Caste::Rig;
-        else if (hw.ram_bytes >= GiB(32)) base = Caste::Workstation;
-        else if (hw.ram_bytes >= GiB(24)) base = Caste::Developer;
-        else                              base = Caste::User;
+        if (hw.ram_bytes >= GiB(64))
+            base = Caste::Rig;
+        else if (hw.ram_bytes >= GiB(32))
+            base = Caste::Workstation;
+        else if (hw.ram_bytes >= GiB(24))
+            base = Caste::Developer;
+        else
+            base = Caste::User;
         out.reason = "unified memory (Apple Silicon) caste by RAM";
     } else if (hw.gpu_kind == GpuKind::Integrated) {
         // Integrated GPU (Intel/AMD iGPU): default to User if >=8GB RAM.
@@ -99,7 +114,8 @@ CasteResult classify_caste(const HwFacts& hw) {
     Caste capped = min_caste(base, cap_ram);
 
     // 4) Gentle CPU sanity clamp (optional but cheap)
-    Caste cap_cpu = cpu_cap(hw.physical_cores, hw.logical_threads);
+    Caste cap_cpu =
+        cpu_cap({.physical_cores = hw.physical_cores, .logical_threads = hw.logical_threads});
     capped = min_caste(capped, cap_cpu);
 
     // 5) Ensure we don’t return Mini if RAM >= 8GB unless everything is truly weak
@@ -120,11 +136,16 @@ CasteResult classify_caste(const HwFacts& hw) {
 // Optional helper for display
 const char* caste_name(Caste t) {
     switch (t) {
-        case Caste::Mini: return "Mini";
-        case Caste::User: return "User";
-        case Caste::Developer: return "Developer";
-        case Caste::Workstation: return "Workstation";
-        case Caste::Rig: return "Rig";
+    case Caste::Mini:
+        return "Mini";
+    case Caste::User:
+        return "User";
+    case Caste::Developer:
+        return "Developer";
+    case Caste::Workstation:
+        return "Workstation";
+    case Caste::Rig:
+        return "Rig";
     }
     return "Unknown";
 }

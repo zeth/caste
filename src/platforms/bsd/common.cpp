@@ -23,14 +23,17 @@ static bool parse_hex_u32(const std::string& s, uint32_t& out) {
 }
 
 std::string trim(std::string s) {
-    auto notspace = [](unsigned char c){ return c != ' ' && c != '\t' && c != '\n' && c != '\r'; };
-    while (!s.empty() && !notspace((unsigned char)s.front())) s.erase(s.begin());
-    while (!s.empty() && !notspace((unsigned char)s.back())) s.pop_back();
+    auto notspace = [](unsigned char c) { return c != ' ' && c != '\t' && c != '\n' && c != '\r'; };
+    while (!s.empty() && !notspace((unsigned char)s.front()))
+        s.erase(s.begin());
+    while (!s.empty() && !notspace((unsigned char)s.back()))
+        s.pop_back();
     return s;
 }
 
 std::string to_lower(std::string s) {
-    for (char& c : s) c = (char)std::tolower((unsigned char)c);
+    for (char& c : s)
+        c = (char)std::tolower((unsigned char)c);
     return s;
 }
 
@@ -50,7 +53,7 @@ std::vector<PciconfGpuRecord> parse_pciconf_gpu_records(const char* cmd, Pciconf
     PciconfGpuRecord cur{};
     bool in_record = false;
 
-    auto flush = [&](){
+    auto flush = [&]() {
         if (in_record) out.push_back(cur);
         cur = PciconfGpuRecord{};
         in_record = false;
@@ -122,8 +125,7 @@ void apply_name_hints(GpuCandidate& gpu, const std::string& name_lower) {
     }
 }
 
-void apply_vendor_device_hints(GpuCandidate& gpu,
-                               const std::string& vendor_lower,
+void apply_vendor_device_hints(GpuCandidate& gpu, const std::string& vendor_lower,
                                const std::string& device_lower,
                                bool treat_virtual_vendor_as_virtual) {
     if (vendor_lower.find("nvidia") != std::string::npos ||
@@ -137,7 +139,8 @@ void apply_vendor_device_hints(GpuCandidate& gpu,
         gpu.is_discrete_hint = true;
     }
 
-    if ((treat_virtual_vendor_as_virtual && contains_any(vendor_lower, {"red hat", "vmware", "virtualbox", "bochs", "cirrus"})) ||
+    if ((treat_virtual_vendor_as_virtual &&
+         contains_any(vendor_lower, {"red hat", "vmware", "virtualbox", "bochs", "cirrus"})) ||
         contains_any(device_lower, {"qxl", "virtio", "vmware", "virtualbox", "bochs", "cirrus"})) {
         gpu.is_virtual_hint = true;
     }
@@ -156,10 +159,9 @@ GpuCandidate pick_best_gpu(const std::vector<GpuCandidate>& gpus) {
         return s;
     };
     if (gpus.empty()) return {};
-    return *std::max_element(gpus.begin(), gpus.end(),
-                             [&](const GpuCandidate& a, const GpuCandidate& b){
-                                 return score(a) < score(b);
-                             });
+    return *std::max_element(
+        gpus.begin(), gpus.end(),
+        [&](const GpuCandidate& a, const GpuCandidate& b) { return score(a) < score(b); });
 }
 
 void apply_gpu_candidate_to_hw(HwFacts& hw, const GpuCandidate& best) {

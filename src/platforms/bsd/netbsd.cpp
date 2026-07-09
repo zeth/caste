@@ -26,9 +26,11 @@ static std::vector<bsd_common::GpuCandidate> parse_pcictl_gpus() {
 
         auto lparen = desc.rfind('(');
         auto rparen = desc.rfind(')');
-        if (lparen == std::string::npos || rparen == std::string::npos || lparen >= rparen) continue;
+        if (lparen == std::string::npos || rparen == std::string::npos || lparen >= rparen)
+            continue;
 
-        std::string class_desc = bsd_common::to_lower(bsd_common::trim(desc.substr(lparen + 1, rparen - lparen - 1)));
+        std::string class_desc =
+            bsd_common::to_lower(bsd_common::trim(desc.substr(lparen + 1, rparen - lparen - 1)));
         if (class_desc.find("display") == std::string::npos) continue;
 
         bsd_common::GpuCandidate g{};

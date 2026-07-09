@@ -62,8 +62,10 @@ static std::vector<bsd_common::GpuCandidate> parse_dmesg_gpus() {
         // vga1 at pci0 dev 2 function 0 "Red Hat QXL Video" rev 0x05
         if (line.find(" vga") == std::string::npos && line.rfind("vga", 0) != 0) continue;
         auto quote_a = line.find('"');
-        auto quote_b = (quote_a == std::string::npos) ? std::string::npos : line.find('"', quote_a + 1);
-        if (quote_a == std::string::npos || quote_b == std::string::npos || quote_b <= quote_a + 1) continue;
+        auto quote_b =
+            (quote_a == std::string::npos) ? std::string::npos : line.find('"', quote_a + 1);
+        if (quote_a == std::string::npos || quote_b == std::string::npos || quote_b <= quote_a + 1)
+            continue;
 
         bsd_common::GpuCandidate g{};
         bsd_common::apply_name_hints(g, line.substr(quote_a + 1, quote_b - quote_a - 1));

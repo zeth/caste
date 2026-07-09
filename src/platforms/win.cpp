@@ -28,16 +28,17 @@ static CpuCounts get_cpu_counts() {
     if (len == 0) return out;
 
     std::vector<unsigned char> buffer(len);
-    if (!GetLogicalProcessorInformationEx(RelationProcessorCore,
-                                          reinterpret_cast<PSYSTEM_LOGICAL_PROCESSOR_INFORMATION_EX>(buffer.data()),
-                                          &len)) {
+    if (!GetLogicalProcessorInformationEx(
+            RelationProcessorCore,
+            reinterpret_cast<PSYSTEM_LOGICAL_PROCESSOR_INFORMATION_EX>(buffer.data()), &len)) {
         return out;
     }
 
     size_t offset = 0;
     int cores = 0;
     while (offset + sizeof(SYSTEM_LOGICAL_PROCESSOR_INFORMATION_EX) <= len) {
-        auto info = reinterpret_cast<PSYSTEM_LOGICAL_PROCESSOR_INFORMATION_EX>(buffer.data() + offset);
+        auto info =
+            reinterpret_cast<PSYSTEM_LOGICAL_PROCESSOR_INFORMATION_EX>(buffer.data() + offset);
         if (info->Relationship == RelationProcessorCore) cores++;
         offset += info->Size;
     }
@@ -71,10 +72,9 @@ static GpuCandidate pick_best_gpu(const std::vector<GpuCandidate>& gpus) {
         return s;
     };
     if (gpus.empty()) return {};
-    return *std::max_element(gpus.begin(), gpus.end(),
-                             [&](const GpuCandidate& a, const GpuCandidate& b){
-                                 return score(a) < score(b);
-                             });
+    return *std::max_element(
+        gpus.begin(), gpus.end(),
+        [&](const GpuCandidate& a, const GpuCandidate& b) { return score(a) < score(b); });
 }
 
 static std::vector<GpuCandidate> enumerate_gpus_dxgi() {
@@ -85,7 +85,7 @@ static std::vector<GpuCandidate> enumerate_gpus_dxgi() {
         return out;
     }
 
-    for (UINT i = 0; ; ++i) {
+    for (UINT i = 0;; ++i) {
         IDXGIAdapter1* adapter = nullptr;
         if (factory->EnumAdapters1(i, &adapter) == DXGI_ERROR_NOT_FOUND) break;
 
@@ -96,7 +96,8 @@ static std::vector<GpuCandidate> enumerate_gpus_dxgi() {
                 g.vendor_id = desc.VendorId;
                 g.device_id = desc.DeviceId;
                 g.vram_bytes = static_cast<uint64_t>(desc.DedicatedVideoMemory);
-                g.is_intel_arc_hint = (g.vendor_id == 0x8086) && intel_arc_device_heuristic(g.device_id);
+                g.is_intel_arc_hint =
+                    (g.vendor_id == 0x8086) && intel_arc_device_heuristic(g.device_id);
 
                 if (g.vendor_id == 0x10de || g.vendor_id == 0x1002) {
                     g.is_discrete_hint = true;

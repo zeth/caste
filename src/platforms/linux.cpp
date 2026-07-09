@@ -36,9 +36,11 @@
 namespace {
 
 static inline std::string trim(std::string s) {
-    auto notspace = [](unsigned char c){ return c != ' ' && c != '\t' && c != '\n' && c != '\r'; };
-    while (!s.empty() && !notspace((unsigned char)s.front())) s.erase(s.begin());
-    while (!s.empty() && !notspace((unsigned char)s.back())) s.pop_back();
+    auto notspace = [](unsigned char c) { return c != ' ' && c != '\t' && c != '\n' && c != '\r'; };
+    while (!s.empty() && !notspace((unsigned char)s.front()))
+        s.erase(s.begin());
+    while (!s.empty() && !notspace((unsigned char)s.back()))
+        s.pop_back();
     return s;
 }
 
@@ -91,7 +93,7 @@ static std::optional<int> parse_int(const std::string& s) {
 }
 
 static uint64_t get_total_ram_bytes_sysinfo() {
-    struct sysinfo info{};
+    struct sysinfo info {};
     if (sysinfo(&info) != 0) return 0;
     return static_cast<uint64_t>(info.totalram) * info.mem_unit;
 }
@@ -122,9 +124,9 @@ static CpuCounts get_cpu_counts_from_proc() {
     bool saw_core = false;
     int cur_phys_id = -1;
     int cur_core_id = -1;
-    std::set<std::pair<int,int>> core_pairs;
+    std::set<std::pair<int, int>> core_pairs;
 
-    auto flush_record = [&](){
+    auto flush_record = [&]() {
         if (cur_phys_id >= 0 && cur_core_id >= 0) {
             core_pairs.emplace(cur_phys_id, cur_core_id);
         }
@@ -206,10 +208,8 @@ struct NvmlApi {
     nvmlReturn_t (*nvmlDeviceGetMemoryInfo)(nvmlDevice_t, nvmlMemory_t*) = nullptr;
 
     bool ok() const {
-        return handle &&
-               nvmlInit_v2 && nvmlShutdown &&
-               nvmlDeviceGetCount_v2 && nvmlDeviceGetHandleByIndex_v2 &&
-               nvmlDeviceGetMemoryInfo;
+        return handle && nvmlInit_v2 && nvmlShutdown && nvmlDeviceGetCount_v2 &&
+               nvmlDeviceGetHandleByIndex_v2 && nvmlDeviceGetMemoryInfo;
     }
 };
 
@@ -284,8 +284,8 @@ static bool path_is_card(const std::filesystem::directory_entry& de) {
 }
 
 struct GpuCandidate {
-    uint64_t vendor = 0;   // PCI vendor
-    uint64_t device = 0;   // PCI device id
+    uint64_t vendor = 0; // PCI vendor
+    uint64_t device = 0; // PCI device id
     bool is_discrete_hint = false;
     bool is_intel_arc_hint = false;
     uint64_t vram_bytes = 0; // best-effort
@@ -298,7 +298,8 @@ static bool intel_arc_device_heuristic(uint64_t intel_device_id) {
     return (hi == 0x56ull) || (hi == 0x57ull);
 }
 
-static std::optional<uint64_t> try_read_amd_vram_total(const std::filesystem::path& drm_card_device_path) {
+static std::optional<uint64_t>
+try_read_amd_vram_total(const std::filesystem::path& drm_card_device_path) {
     // Many amdgpu expose mem_info_vram_total in bytes.
     auto p = drm_card_device_path / "mem_info_vram_total";
     auto v = read_dec_u64_file(p);
@@ -353,7 +354,8 @@ static std::vector<GpuCandidate> enumerate_gpus_sysfs() {
 }
 
 static bool has_vendor(const std::vector<GpuCandidate>& gpus, uint64_t vendor) {
-    return std::any_of(gpus.begin(), gpus.end(), [&](const GpuCandidate& g){ return g.vendor == vendor; });
+    return std::any_of(gpus.begin(), gpus.end(),
+                       [&](const GpuCandidate& g) { return g.vendor == vendor; });
 }
 
 static GpuCandidate pick_best_gpu(std::vector<GpuCandidate> gpus) {
@@ -371,10 +373,9 @@ static GpuCandidate pick_best_gpu(std::vector<GpuCandidate> gpus) {
     };
 
     if (gpus.empty()) return {};
-    return *std::max_element(gpus.begin(), gpus.end(),
-                            [&](const GpuCandidate& a, const GpuCandidate& b){
-                                return score(a) < score(b);
-                            });
+    return *std::max_element(
+        gpus.begin(), gpus.end(),
+        [&](const GpuCandidate& a, const GpuCandidate& b) { return score(a) < score(b); });
 }
 
 } // namespace
@@ -427,7 +428,8 @@ HwFacts fill_hw_facts_platform() {
     if (best.is_discrete_hint) {
         hw.gpu_kind = GpuKind::Discrete;
         hw.has_discrete_gpu = true;
-        hw.vram_bytes = best.vram_bytes; // may still be 0 if unknown (e.g., Intel Arc dGPU without a VRAM source)
+        hw.vram_bytes = best.vram_bytes; // may still be 0 if unknown (e.g., Intel Arc dGPU without
+                                         // a VRAM source)
     } else {
         hw.gpu_kind = GpuKind::Integrated;
         hw.has_discrete_gpu = false;
@@ -442,23 +444,26 @@ HwFacts fill_hw_facts_platform() {
 #include <iostream>
 static const char* gpu_kind_name(GpuKind k) {
     switch (k) {
-        case GpuKind::None: return "None";
-        case GpuKind::Integrated: return "Integrated";
-        case GpuKind::Unified: return "Unified";
-        case GpuKind::Discrete: return "Discrete";
+    case GpuKind::None:
+        return "None";
+    case GpuKind::Integrated:
+        return "Integrated";
+    case GpuKind::Unified:
+        return "Unified";
+    case GpuKind::Discrete:
+        return "Discrete";
     }
     return "Unknown";
 }
 int main() {
     HwFacts hw = fill_hw_facts_platform();
-    std::cout << "RAM: " << (hw.ram_bytes / (1024ull*1024ull*1024ull)) << " GiB\n";
+    std::cout << "RAM: " << (hw.ram_bytes / (1024ull * 1024ull * 1024ull)) << " GiB\n";
     std::cout << "CPU: physical_cores=" << hw.physical_cores
               << " logical_threads=" << hw.logical_threads << "\n";
     std::cout << "GPU: kind=" << gpu_kind_name(hw.gpu_kind)
               << " has_discrete=" << (hw.has_discrete_gpu ? "true" : "false")
-              << " vram=" << (hw.vram_bytes / (1024ull*1024ull*1024ull)) << " GiB"
-              << " intel_arc_hint=" << (hw.is_intel_arc ? "true" : "false")
-              << "\n";
+              << " vram=" << (hw.vram_bytes / (1024ull * 1024ull * 1024ull)) << " GiB"
+              << " intel_arc_hint=" << (hw.is_intel_arc ? "true" : "false") << "\n";
     return 0;
 }
 #endif

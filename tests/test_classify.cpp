@@ -107,10 +107,7 @@ TEST_CASE("Named caste comparison helpers match operator semantics") {
 TEST_CASE("Caste ranges support reusable policy buckets") {
     constexpr CasteRange user_or_below{Caste::Mini, Caste::User};
     constexpr CasteRange dev_or_above{Caste::Developer, Caste::Rig};
-    constexpr CasteRange dev_to_workstation{
-        Caste::Developer,
-        Caste::Workstation
-    };
+    constexpr CasteRange dev_to_workstation{Caste::Developer, Caste::Workstation};
 
     REQUIRE(user_or_below.contains(Caste::Mini));
     REQUIRE(user_or_below.contains(Caste::User));
@@ -159,12 +156,12 @@ TEST_CASE("Predefined caste ranges cover common policy bands") {
 namespace {
 bool is_valid_caste(Caste c) {
     switch (c) {
-        case Caste::Mini:
-        case Caste::User:
-        case Caste::Developer:
-        case Caste::Workstation:
-        case Caste::Rig:
-            return true;
+    case Caste::Mini:
+    case Caste::User:
+    case Caste::Developer:
+    case Caste::Workstation:
+    case Caste::Rig:
+        return true;
     }
     return false;
 }
