@@ -4,13 +4,7 @@
 #include <string>
 #include <algorithm>
 
-enum class Caste {
-    Mini,
-    User,
-    Developer,
-    Workstation,
-    Rig
-};
+enum class Caste : std::uint8_t { Mini, User, Developer, Workstation, Rig };
 
 constexpr int caste_rank(Caste caste) {
     return static_cast<int>(caste);
@@ -44,9 +38,7 @@ struct CasteRange {
     Caste min;
     Caste max;
 
-    constexpr CasteRange(Caste a, Caste b)
-        : min{}, max{}
-    {
+    constexpr CasteRange(Caste a, Caste b) : min{}, max{} {
         auto [lo, hi] = std::minmax(a, b);
         min = lo;
         max = hi;
@@ -62,11 +54,11 @@ constexpr CasteRange user_or_above{Caste::User, Caste::Rig};
 constexpr CasteRange dev_or_below{Caste::Mini, Caste::Developer};
 constexpr CasteRange dev_or_above{Caste::Developer, Caste::Rig};
 
-enum class GpuKind {
+enum class GpuKind : std::uint8_t {
     None,
-    Integrated,   // Intel UHD/Iris Xe, AMD iGPU, etc. (shared memory)
-    Unified,      // Apple Silicon style unified memory (shared, but fast)
-    Discrete      // NVIDIA/AMD dGPU with dedicated VRAM
+    Integrated, // Intel UHD/Iris Xe, AMD iGPU, etc. (shared memory)
+    Unified,    // Apple Silicon style unified memory (shared, but fast)
+    Discrete    // NVIDIA/AMD dGPU with dedicated VRAM
 };
 
 struct HwFacts {
@@ -79,10 +71,10 @@ struct HwFacts {
 
     // GPU summary (your detection layer fills this)
     GpuKind gpu_kind = GpuKind::None;
-    uint64_t vram_bytes = 0;          // only meaningful if gpu_kind == Discrete
-    bool has_discrete_gpu = false;    // convenience (often same as gpu_kind==Discrete)
-    bool is_apple_silicon = false;    // macOS arm64
-    bool is_intel_arc = false;        // Arc dGPU OR Arc-class iGPU (your detection decides)
+    uint64_t vram_bytes = 0;       // only meaningful if gpu_kind == Discrete
+    bool has_discrete_gpu = false; // convenience (often same as gpu_kind==Discrete)
+    bool is_apple_silicon = false; // macOS arm64
+    bool is_intel_arc = false;     // Arc dGPU OR Arc-class iGPU (your detection decides)
 };
 
 struct CasteResult {

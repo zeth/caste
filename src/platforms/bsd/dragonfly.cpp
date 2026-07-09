@@ -13,15 +13,14 @@ HwFacts fill_hw_facts_platform() {
     }
     bsd_common::sysctlbyname_int("hw.ncpu", hw.logical_threads);
 
-    auto gpus = bsd_common::parse_pciconf_gpu_records("pciconf -lv 2>/dev/null", bsd_common::PciconfFormat::DragonFlyStyle);
+    auto gpus = bsd_common::parse_pciconf_gpu_records("pciconf -lv 2>/dev/null",
+                                                      bsd_common::PciconfFormat::DragonFlyStyle);
     std::vector<bsd_common::GpuCandidate> scored;
     for (const auto& g : gpus) {
         if (!g.is_gpu) continue;
         bsd_common::GpuCandidate c{};
-        bsd_common::apply_vendor_device_hints(c,
-                                              bsd_common::to_lower(g.vendor),
-                                              bsd_common::to_lower(g.device),
-                                              true);
+        bsd_common::apply_vendor_device_hints(c, bsd_common::to_lower(g.vendor),
+                                              bsd_common::to_lower(g.device), true);
         scored.push_back(c);
     }
 

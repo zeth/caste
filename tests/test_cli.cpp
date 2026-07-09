@@ -34,11 +34,9 @@ int run_cli_and_capture(const std::string& args, std::string& output) {
 }
 
 bool output_has_caste_word(const std::string& out) {
-    return out.find("Mini") != std::string::npos ||
-           out.find("User") != std::string::npos ||
+    return out.find("Mini") != std::string::npos || out.find("User") != std::string::npos ||
            out.find("Developer") != std::string::npos ||
-           out.find("Workstation") != std::string::npos ||
-           out.find("Rig") != std::string::npos;
+           out.find("Workstation") != std::string::npos || out.find("Rig") != std::string::npos;
 }
 
 } // namespace

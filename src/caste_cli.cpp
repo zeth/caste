@@ -5,10 +5,14 @@
 
 static const char* gpu_kind_name(GpuKind k) {
     switch (k) {
-        case GpuKind::None: return "None";
-        case GpuKind::Integrated: return "Integrated";
-        case GpuKind::Unified: return "Unified";
-        case GpuKind::Discrete: return "Discrete";
+    case GpuKind::None:
+        return "None";
+    case GpuKind::Integrated:
+        return "Integrated";
+    case GpuKind::Unified:
+        return "Unified";
+    case GpuKind::Discrete:
+        return "Discrete";
     }
     return "Unknown";
 }

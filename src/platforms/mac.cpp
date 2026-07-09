@@ -87,10 +87,9 @@ static GpuCandidate pick_best_gpu(const std::vector<GpuCandidate>& gpus) {
         return s;
     };
     if (gpus.empty()) return {};
-    return *std::max_element(gpus.begin(), gpus.end(),
-                             [&](const GpuCandidate& a, const GpuCandidate& b){
-                                 return score(a) < score(b);
-                             });
+    return *std::max_element(
+        gpus.begin(), gpus.end(),
+        [&](const GpuCandidate& a, const GpuCandidate& b) { return score(a) < score(b); });
 }
 
 static std::vector<GpuCandidate> enumerate_gpus_iokit() {
@@ -137,8 +136,8 @@ static std::vector<GpuCandidate> enumerate_gpus_iokit() {
         }
         if (device_data) CFRelease(device_data);
 
-        CFTypeRef vram_any = IORegistryEntryCreateCFProperty(
-            entry, CFSTR("VRAM,totalsize"), kCFAllocatorDefault, 0);
+        CFTypeRef vram_any =
+            IORegistryEntryCreateCFProperty(entry, CFSTR("VRAM,totalsize"), kCFAllocatorDefault, 0);
         uint64_t vram_u64 = 0;
         if (vram_any) {
             if (CFGetTypeID(vram_any) == CFDataGetTypeID()) {
