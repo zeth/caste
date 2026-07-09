@@ -18,6 +18,7 @@
 #if defined(__linux__)
 
 #include <algorithm>
+#include <charconv>
 #include <cstdint>
 #include <dlfcn.h>
 #include <filesystem>
@@ -26,6 +27,7 @@
 #include <set>
 #include <sstream>
 #include <string>
+#include <system_error>
 #include <sys/sysinfo.h>
 #include <thread>
 #include <utility>
@@ -48,31 +50,44 @@ static std::optional<std::string> read_text_file(const std::filesystem::path& p)
     return ss.str();
 }
 
+static std::optional<uint64_t> parse_u64(std::string s, int base) {
+    if (base == 16 && s.size() >= 2 && s[0] == '0' && (s[1] == 'x' || s[1] == 'X')) {
+        s.erase(0, 2);
+    }
+
+    uint64_t value = 0;
+    auto* first = s.data();
+    auto* last = first + s.size();
+    auto result = std::from_chars(first, last, value, base);
+    if (result.ec != std::errc{} || result.ptr != last) {
+        return std::nullopt;
+    }
+    return value;
+}
+
 static std::optional<uint64_t> read_hex_u64_file(const std::filesystem::path& p) {
     auto txt = read_text_file(p);
     if (!txt) return std::nullopt;
     std::string s = trim(*txt);
-    // e.g. "0x10de"
-    uint64_t v = 0;
-    try {
-        v = std::stoull(s, nullptr, 16);
-    } catch (...) {
-        return std::nullopt;
-    }
-    return v;
+    return parse_u64(s, 16);
 }
 
 static std::optional<uint64_t> read_dec_u64_file(const std::filesystem::path& p) {
     auto txt = read_text_file(p);
     if (!txt) return std::nullopt;
     std::string s = trim(*txt);
-    uint64_t v = 0;
-    try {
-        v = std::stoull(s, nullptr, 10);
-    } catch (...) {
+    return parse_u64(s, 10);
+}
+
+static std::optional<int> parse_int(const std::string& s) {
+    int value = 0;
+    auto* first = s.data();
+    auto* last = first + s.size();
+    auto result = std::from_chars(first, last, value);
+    if (result.ec != std::errc{} || result.ptr != last) {
         return std::nullopt;
     }
-    return v;
+    return value;
 }
 
 static uint64_t get_total_ram_bytes_sysinfo() {
@@ -131,10 +146,14 @@ static CpuCounts get_cpu_counts_from_proc() {
             processors++;
         } else if (key == "physical id") {
             saw_phys = true;
-            try { cur_phys_id = std::stoi(val); } catch (...) {}
+            if (auto parsed = parse_int(val)) {
+                cur_phys_id = *parsed;
+            }
         } else if (key == "core id") {
             saw_core = true;
-            try { cur_core_id = std::stoi(val); } catch (...) {}
+            if (auto parsed = parse_int(val)) {
+                cur_core_id = *parsed;
+            }
         }
     }
     flush_record();

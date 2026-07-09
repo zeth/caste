@@ -4,7 +4,7 @@
 #include <string>
 #include <algorithm>
 
-enum class Caste {
+enum class Caste : std::uint8_t {
     Mini,
     User,
     Developer,
@@ -62,7 +62,7 @@ constexpr CasteRange user_or_above{Caste::User, Caste::Rig};
 constexpr CasteRange dev_or_below{Caste::Mini, Caste::Developer};
 constexpr CasteRange dev_or_above{Caste::Developer, Caste::Rig};
 
-enum class GpuKind {
+enum class GpuKind : std::uint8_t {
     None,
     Integrated,   // Intel UHD/Iris Xe, AMD iGPU, etc. (shared memory)
     Unified,      // Apple Silicon style unified memory (shared, but fast)
